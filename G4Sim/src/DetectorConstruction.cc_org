@@ -1,0 +1,107 @@
+#include "DetectorConstruction.hh"
+#include "G4Material.hh"
+#include "G4NistManager.hh"
+#include "G4Box.hh"
+#include "G4LogicalVolume.hh"
+#include "G4PVPlacement.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4SubtractionSolid.hh"
+#include "G4ThreeVector.hh"
+#include "G4VisAttributes.hh"
+
+
+// Magnetic field includes
+#include "MagneticField.hh"
+#include "G4FieldManager.hh"
+#include "G4TransportationManager.hh"
+#include "G4ChordFinder.hh"
+
+
+
+DetectorConstruction::DetectorConstruction() {}
+DetectorConstruction::~DetectorConstruction() {}
+
+G4VPhysicalVolume* DetectorConstruction::Construct() {
+    auto nist = G4NistManager::Instance();
+    G4Material* air = nist->FindOrBuildMaterial("G4_AIR");
+    G4Material* steel = nist->FindOrBuildMaterial("G4_Fe");
+    G4Material* plastic = nist->FindOrBuildMaterial("G4_POLYSTYRENE");
+    G4Material* aluminum = nist->FindOrBuildMaterial("G4_Al");
+
+    G4double worldZ = 1200. * mm;
+    G4Box* worldBox = new G4Box("World", 1.0*m, 1.0*m, worldZ/2);
+    G4LogicalVolume* worldLV = new G4LogicalVolume(worldBox, air, "WorldLV");
+    G4VPhysicalVolume* worldPV = new G4PVPlacement(nullptr, {}, worldLV, "World", nullptr, false, 0);
+
+    G4double magnetThickness = 20.*mm;
+    G4double scifiThickness = 5.*mm;
+    G4double airGap = 200.*mm;
+    G4double moduleLength = magnetThickness + scifiThickness + airGap;
+
+    for (int i = 0; i < 5; ++i) {
+        G4double zOffset = -worldZ/2 + moduleLength/2 + i * moduleLength;
+
+        // --- Steel Magnet with Horizontal Slits ---
+        G4Box* solidMagnet = new G4Box("Magnet", 500.*mm, 500.*mm, magnetThickness/2);
+        G4Box* slitBox = new G4Box("Slit", 500.*mm, 5.*mm, magnetThickness/2);
+
+        G4SubtractionSolid* magnetMinusSlit1 = new G4SubtractionSolid(
+            "MagnetMinusSlit1", solidMagnet, slitBox, nullptr, G4ThreeVector(0, 250.*mm, 0));
+        G4SubtractionSolid* magnetWithSlits = new G4SubtractionSolid(
+            "MagnetWithSlits", magnetMinusSlit1, slitBox, nullptr, G4ThreeVector(0, -250.*mm, 0));
+
+        G4LogicalVolume* magnetLV = new G4LogicalVolume(magnetWithSlits, steel, "MagnetLV");
+        new G4PVPlacement(nullptr, G4ThreeVector(0, 0, zOffset), magnetLV, "Magnet", worldLV, false, i);
+
+	// Magnetic field on the magnet volume
+	auto field = new MagneticField();
+        auto fieldManager = new G4FieldManager(field);
+        fieldManager->CreateChordFinder(field);
+        magnetLV->SetFieldManager(fieldManager, true);
+	
+        // --- Front and Back Aluminum Strips ---
+        G4Box* aluminumStrip = new G4Box("AluStrip", 25.*mm, 500.*mm, 2.*mm);  // 50×1000×4 mm³
+        G4LogicalVolume* aluLV = new G4LogicalVolume(aluminumStrip, aluminum, "AluLV");
+
+        int nStrips = 10;
+        double stripSpacing = 1000.0 / nStrips;
+        for (int j = 0; j < nStrips; ++j) {
+            double xPos = -450.0*mm + j * stripSpacing + 25.0*mm;
+
+            new G4PVPlacement(nullptr, G4ThreeVector(xPos, 0, zOffset - magnetThickness/2 - 2.*mm),
+                              aluLV, "AluStripFront", worldLV, false, i * 100 + j);
+            new G4PVPlacement(nullptr, G4ThreeVector(xPos, 0, zOffset + magnetThickness/2 + 2.*mm),
+                              aluLV, "AluStripBack", worldLV, false, i * 1000 + j);
+        }
+
+        // --- SciFi Tracker ---
+        G4Box* scifiBox = new G4Box("SciFi", 500.*mm, 500.*mm, scifiThickness/2);
+        G4LogicalVolume* scifiLV = new G4LogicalVolume(scifiBox, plastic, "SciFiLV");
+        G4double scifiZ = zOffset + (magnetThickness + scifiThickness) / 2;
+        new G4PVPlacement(nullptr, G4ThreeVector(0, 0, scifiZ), scifiLV, "SciFi", worldLV, false, i);
+
+	// Magnet (gray)
+	auto magnetVis = new G4VisAttributes(G4Colour(0.5, 0.5, 0.5)); // RGB: gray
+	magnetVis->SetForceSolid(true);
+	magnetLV->SetVisAttributes(magnetVis);
+	
+	// Aluminum strips (silver-blue)
+	auto aluVis = new G4VisAttributes(G4Colour(0.7, 0.8, 1.0)); // light bluish
+	aluVis->SetForceSolid(true);
+	aluLV->SetVisAttributes(aluVis);
+	
+	// SciFi Tracker (green)
+	auto scifiVis = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0)); // green
+	scifiVis->SetForceSolid(true);
+	scifiLV->SetVisAttributes(scifiVis);
+    }
+
+ 
+
+    
+    // World (invisible)
+    worldLV->SetVisAttributes(G4VisAttributes::GetInvisible());
+    
+    return worldPV;
+}
+

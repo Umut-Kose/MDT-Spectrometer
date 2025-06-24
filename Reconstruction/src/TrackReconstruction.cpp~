@@ -1,0 +1,291 @@
+#include "TrackReconstruction.h"
+#include <iostream>
+#include <algorithm>
+#include <cmath>
+
+TrackReconstructor::TrackReconstructor(const char* inputFile) {
+    fInputFile = new TFile(inputFile, "READ");
+    fTree = (TTree*)fInputFile->Get("Hits");
+    
+    // Initialize histograms
+    fMomentumResolution = new TH1D("momentum_res", "Momentum Resolution; (p_{reco} - p_{true})/p_{true}; Entries", 100, -0.5, 0.5);
+    fSignEfficiency = new TH1D("sign_eff", "Charge Sign Efficiency; Correct/Total; Entries", 2, 0, 2);
+    fRecoVsTrueMomentum = new TH2D("reco_vs_true", "Reconstructed vs True Momentum; p_{true} [GeV]; p_{reco} [GeV]", 100, 0, 110, 100, 0, 110);
+    fPullP = new TH1D("pull_p", "Momentum Pull; (p_{reco} - p_{true})/#sigma_{p}; Entries", 100, -5, 5);
+    fChi2 = new TH1D("chi2", "Track Fit #chi^{2}; #chi^{2}/ndf; Entries", 100, 0, 10);
+    
+    // Set branch addresses
+    fTree->SetBranchAddress("x", &fx);
+    fTree->SetBranchAddress("y", &fy);
+    fTree->SetBranchAddress("z", &fz);
+    fTree->SetBranchAddress("px", &fpx);
+    fTree->SetBranchAddress("py", &fpy);
+    fTree->SetBranchAddress("pz", &fpz);
+    fTree->SetBranchAddress("pdg", &fpdg);
+    fTree->SetBranchAddress("eventID", &feventID);
+    fTree->SetBranchAddress("layerID", &flayerID);
+}
+
+TrackReconstructor::~TrackReconstructor() {
+    fInputFile->Close();
+    delete fInputFile;
+}
+
+void TrackReconstructor::LoadData() {
+    int nEntries = fTree->GetEntries();
+    
+    for (int i = 0; i < nEntries; ++i) {
+        fTree->GetEntry(i);
+        
+        for (size_t j = 0; j < fx->size(); ++j) {
+            Hit hit;
+            hit.x = fx->at(j);
+            hit.y = fy->at(j);
+            hit.z = fz->at(j);
+            hit.px = fpx->at(j);
+            hit.py = fpy->at(j);
+            hit.pz = fpz->at(j);
+            hit.pdg = fpdg->at(j);
+            hit.eventID = feventID;
+            hit.layerID = flayerID->at(j);
+            
+            fHits.push_back(hit);
+        }
+    }
+    
+    std::cout << "Loaded " << fHits.size() << " hits from " << nEntries << " events." << std::endl;
+}
+
+void TrackReconstructor::ReconstructTracks() {
+    FindClusters();
+    FitTracks();
+}
+
+void TrackReconstructor::FindClusters() {
+    // Group hits by event first
+    std::sort(fHits.begin(), fHits.end(), [](const Hit& a, const Hit& b) {
+        return a.eventID < b.eventID;
+    });
+    
+    int currentEvent = -1;
+    std::vector<Hit> currentHits;
+    
+    for (const auto& hit : fHits) {
+        if (hit.eventID != currentEvent) {
+            if (!currentHits.empty()) {
+                // Process hits for previous event
+                // Simple clustering: all hits in same event belong to same track
+                // (This can be improved with more sophisticated clustering)
+                fTracks.push_back(currentHits);
+                currentHits.clear();
+            }
+            currentEvent = hit.eventID;
+        }
+        currentHits.push_back(hit);
+    }
+    
+    // Add last event's hits
+    if (!currentHits.empty()) {
+        fTracks.push_back(currentHits);
+    }
+    
+    std::cout << "Found " << fTracks.size() << " potential tracks." << std::endl;
+}
+
+void TrackReconstructor::FitTracks() {
+    for (const auto& track : fTracks) {
+        if (track.size() < fMinHits) continue;
+        
+        double p_reco = CalculateMomentum(track);
+        int sign_reco = DetermineChargeSign(track);
+        
+        // Get true momentum and sign from first hit
+        double p_true = TMath::Sqrt(track[0].px*track[0].px + 
+                                   track[0].py*track[0].py + 
+                                   track[0].pz*track[0].pz);
+        int sign_true = (track[0].pdg > 0) ? 1 : -1;
+        
+        fRecoMomenta.push_back(p_reco);
+        fTrueMomenta.push_back(p_true);
+        fRecoSigns.push_back(sign_reco);
+        fTrueSigns.push_back(sign_true);
+        
+        // Fill histograms
+        fMomentumResolution->Fill((p_reco - p_true)/p_true);
+        fRecoVsTrueMomentum->Fill(p_true, p_reco);
+        if (sign_reco == sign_true) {
+            fSignEfficiency->Fill(1); // Correct
+        } else {
+            fSignEfficiency->Fill(0); // Incorrect
+        }
+    }
+}
+
+double TrackReconstructor::CalculateMomentum(const std::vector<Hit>& hits) {
+    // Simple linear fit in x-z and y-z planes to get track angles
+    // Then use magnetic field information to calculate momentum
+    
+    // Collect positions
+    std::vector<double> x, y, z;
+    for (const auto& hit : hits) {
+        x.push_back(hit.x);
+        y.push_back(hit.y);
+        z.push_back(hit.z);
+    }
+    
+    // Fit straight line in x-z plane: x = a + b*z
+    double S = hits.size();
+    double Sz = 0, Sx = 0, Szz = 0, Sxz = 0;
+    for (size_t i = 0; i < hits.size(); ++i) {
+        Sz += z[i];
+        Sx += x[i];
+        Szz += z[i]*z[i];
+        Sxz += z[i]*x[i];
+    }
+    
+    double delta = S*Szz - Sz*Sz;
+    double b_xz = (S*Sxz - Sz*Sx)/delta; // slope in x-z plane
+    
+    // Fit straight line in y-z plane: y = a + b*z
+    double Sy = 0, Syz = 0;
+    for (size_t i = 0; i < hits.size(); ++i) {
+        Sy += y[i];
+        Syz += y[i]*z[i];
+    }
+    
+    double b_yz = (S*Syz - Sz*Sy)/delta; // slope in y-z plane
+    
+    // Calculate track angles
+    double theta_x = TMath::ATan(b_xz); // angle in x-z plane
+    double theta_y = TMath::ATan(b_yz); // angle in y-z plane
+    
+    // Calculate sagitta (simplified - needs magnetic field info)
+    // For your setup with 5 magnets, we can estimate the sagitta
+    // This is a simplified calculation - should be refined with actual geometry
+    double L = 1500.0; // mm - approximate length of spectrometer
+    double B = 1.5; // Tesla - average field
+    double sagitta = b_xz * L; // simplified
+    
+    // Momentum calculation: p = 0.3 * B * L^2 / (8 * sagitta) [GeV]
+    double p = 0.3 * B * L * L / (8 * TMath::Abs(sagitta));
+    
+    return p;
+}
+
+int TrackReconstructor::DetermineChargeSign(const std::vector<Hit>& hits) {
+    // Use the bending direction to determine charge sign
+    // In your setup, the field is mainly in x-direction, so bending is in y-z plane
+    
+    // Fit straight line in y-z plane before and after magnet
+    std::vector<double> y_before, z_before, y_after, z_after;
+    double z_mid = 0.0; // middle of spectrometer
+    
+    for (const auto& hit : hits) {
+        if (hit.z < z_mid) {
+            y_before.push_back(hit.y);
+            z_before.push_back(hit.z);
+        } else {
+            y_after.push_back(hit.y);
+            z_after.push_back(hit.z);
+        }
+    }
+    
+    if (y_before.size() < 2 || y_after.size() < 2) return 0;
+    
+    // Fit before magnet
+    double S_b = z_before.size();
+    double Sz_b = 0, Sy_b = 0, Szz_b = 0, Syz_b = 0;
+    for (size_t i = 0; i < z_before.size(); ++i) {
+        Sz_b += z_before[i];
+        Sy_b += y_before[i];
+        Szz_b += z_before[i]*z_before[i];
+        Syz_b += z_before[i]*y_before[i];
+    }
+    
+    double delta_b = S_b*Szz_b - Sz_b*Sz_b;
+    double b_before = (S_b*Syz_b - Sz_b*Sy_b)/delta_b;
+    
+    // Fit after magnet
+    double S_a = z_after.size();
+    double Sz_a = 0, Sy_a = 0, Szz_a = 0, Syz_a = 0;
+    for (size_t i = 0; i < z_after.size(); ++i) {
+        Sz_a += z_after[i];
+        Sy_a += y_after[i];
+        Szz_a += z_after[i]*z_after[i];
+        Syz_a += z_after[i]*y_after[i];
+    }
+    
+    double delta_a = S_a*Szz_a - Sz_a*Sz_a;
+    double b_after = (S_a*Syz_a - Sz_a*Sy_a)/delta_a;
+    
+    // Determine sign based on bending direction
+    // In your field configuration (+x direction), negative particles bend one way, positive the other
+    return (b_after > b_before) ? -1 : 1;
+}
+
+void TrackReconstructor::AnalyzePerformance() {
+    // Calculate and print performance metrics
+    double nTracks = fRecoMomenta.size();
+    double signCorrect = 0;
+    double momentumResSum = 0;
+    double momentumResSqSum = 0;
+    
+    for (size_t i = 0; i < nTracks; ++i) {
+        if (fRecoSigns[i] == fTrueSigns[i]) signCorrect++;
+        double res = (fRecoMomenta[i] - fTrueMomenta[i])/fTrueMomenta[i];
+        momentumResSum += res;
+        momentumResSqSum += res*res;
+    }
+    
+    double signEfficiency = signCorrect/nTracks;
+    double meanRes = momentumResSum/nTracks;
+    double rmsRes = TMath::Sqrt(momentumResSqSum/nTracks - meanRes*meanRes);
+    
+    std::cout << "\nPerformance Results:\n";
+    std::cout << "===================\n";
+    std::cout << "Number of reconstructed tracks: " << nTracks << "\n";
+    std::cout << "Charge sign efficiency: " << signEfficiency*100 << "%\n";
+    std::cout << "Momentum resolution (mean): " << meanRes*100 << "%\n";
+    std::cout << "Momentum resolution (RMS): " << rmsRes*100 << "%\n";
+    
+    // Fit momentum resolution vs momentum
+    TProfile* pResVsP = new TProfile("pResVsP", "Momentum Resolution vs Momentum; p [GeV]; #Delta p/p", 10, 0, 100);
+    for (size_t i = 0; i < nTracks; ++i) {
+        double res = (fRecoMomenta[i] - fTrueMomenta[i])/fTrueMomenta[i];
+        pResVsP->Fill(fTrueMomenta[i], res);
+    }
+    
+    pResVsP->Fit("pol0", "Q");
+    TF1* fit = pResVsP->GetFunction("pol0");
+    std::cout << "Average momentum resolution: " << fit->GetParameter(0)*100 << "% ± " 
+              << fit->GetParError(0)*100 << "%\n";
+}
+
+void TrackReconstructor::DrawResults() {
+    TCanvas* c1 = new TCanvas("c1", "Performance Results", 1200, 800);
+    c1->Divide(2,2);
+    
+    // Plot 1: Reconstructed vs True momentum
+    c1->cd(1);
+    fRecoVsTrueMomentum->Draw("colz");
+    TLine* line = new TLine(0,0,110,110);
+    line->SetLineColor(kRed);
+    line->Draw("same");
+    
+    // Plot 2: Momentum resolution
+    c1->cd(2);
+    fMomentumResolution->Fit("gaus");
+    fMomentumResolution->Draw();
+    
+    // Plot 3: Charge sign efficiency
+    c1->cd(3);
+    fSignEfficiency->SetStats(0);
+    fSignEfficiency->GetYaxis()->SetRangeUser(0, fSignEfficiency->GetMaximum()*1.2);
+    fSignEfficiency->Draw("hist text");
+    
+    // Plot 4: Chi2 distribution
+    c1->cd(4);
+    fChi2->Draw();
+    
+    c1->SaveAs("performance_results.pdf");
+}

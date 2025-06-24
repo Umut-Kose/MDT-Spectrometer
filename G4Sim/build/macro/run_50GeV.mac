@@ -1,0 +1,8 @@
+# Set up the particle gun
+/gun/particle mu+
+/gun/energy 50 GeV
+/gun/position 0 0 -1000 mm
+/gun/direction 0 0 1
+
+# Generate 10000 events
+/run/beamOn 10000

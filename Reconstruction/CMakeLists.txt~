@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.10)
+project(TrackReconstruction)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Find ROOT package
+find_package(ROOT REQUIRED COMPONENTS Core Hist Tree Matrix Physics MathCore Gui Graf3d)
+
+# Include ROOT libraries and setup
+include(${ROOT_USE_FILE})
+
+# Set include directories
+include_directories(
+    ${CMAKE_SOURCE_DIR}/include
+    ${ROOT_INCLUDE_DIRS}
+)
+
+# Set source files
+set(SOURCES
+    src/TrackReconstruction.cpp
+    src/main_analysis.cpp
+)
+
+# Create executable
+add_executable(track_reconstruction ${SOURCES})
+
+# Link ROOT libraries
+target_link_libraries(track_reconstruction
+    ${ROOT_LIBRARIES}
+)
+
+# Install target (optional)
+install(TARGETS track_reconstruction DESTINATION bin)
+

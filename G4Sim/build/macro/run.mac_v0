@@ -1,0 +1,56 @@
+# Set number of threads (if using multithreading build)
+#/run/numberOfThreads 1
+
+# Initialize the run
+/run/initialize
+
+# Visualization settings (running with Qt)
+#/vis/open OGLSQt
+#/vis/drawVolume
+#/vis/scene/add/volume
+#/vis/scene/add/axes 0 0 0 100 cm
+#/vis/viewer/set/viewpointVector 1 1 1
+#/vis/viewer/set/style wireframe
+#/vis/viewer/set/autoRefresh true
+#/vis/enable
+#/vis/verbose warnings
+#/tracking/storeTrajectory 1
+#/vis/scene/add/trajectories
+
+# Physics and geometry verbose levels (optional)
+#/control/verbose 1
+#/run/verbose 1
+#/event/verbose 1
+#/tracking/verbose 1
+
+# Fire one event per energy step (10 muons total from 10 to 100 GeV)
+# Each event corresponds to a different energy as coded in PrimaryGeneratorAction
+#/run/beamOn 10
+
+# Set a single particle
+#/gun/particle mu-
+
+# Fire 10 events at each energy (example with manual energy setting)
+#/gun/energy 10 GeV
+#/run/beamOn 10
+#/gun/energy 20 GeV
+#/run/beamOn 10
+#/gun/energy 30 GeV
+#/run/beamOn 10
+#/gun/energy 40 GeV
+#/run/beamOn 10
+#/gun/energy 50 GeV
+#/run/beamOn 10
+#/gun/energy 60 GeV
+#/run/beamOn 10
+#/gun/energy 70 GeV
+#/run/beamOn 10
+#/gun/energy 80 GeV
+#/run/beamOn 10
+#/gun/energy 90 GeV
+#/run/beamOn 10
+#/gun/energy 100 GeV
+#/run/beamOn 10
+
+# Or use a wrapper C++ loop if you want dynamic energy setting in primary generator
+/run/beamOn 100

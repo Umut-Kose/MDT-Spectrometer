@@ -1,0 +1,77 @@
+#ifndef TRACKRECONSTRUCTION_H
+#define TRACKRECONSTRUCTION_H
+
+#include <vector>
+#include <TTree.h>
+#include <TFile.h>
+#include <TVector3.h>
+#include <TGraphErrors.h>
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TF1.h>
+#include <TMath.h>
+#include <TCanvas.h>
+#include <TLegend.h>
+#include <TProfile.h>
+
+struct Hit {
+    double x, y, z;
+    double px, py, pz;
+    int pdg;
+    int eventID;
+    int layerID;
+};
+
+class TrackReconstructor {
+public:
+    TrackReconstructor(const char* inputFile);
+    ~TrackReconstructor();
+    
+    void LoadData();
+    void ReconstructTracks();
+    void AnalyzePerformance();
+    void DrawResults();
+    
+private:
+    TFile* fInputFile;
+    TTree* fTree;
+    
+    // Input branches
+    std::vector<double>* fx = nullptr;
+    std::vector<double>* fy = nullptr;
+    std::vector<double>* fz = nullptr;
+    std::vector<double>* fpx = nullptr;
+    std::vector<double>* fpy = nullptr;
+    std::vector<double>* fpz = nullptr;
+    std::vector<int>* fpdg = nullptr;
+    std::vector<int>* flayerID = nullptr;
+    int feventID;
+    
+    // Data storage
+    std::vector<Hit> fHits;
+    std::vector<std::vector<Hit>> fTracks;
+    
+    // Results
+    std::vector<double> fRecoMomenta;
+    std::vector<double> fTrueMomenta;
+    std::vector<int> fRecoSigns;
+    std::vector<int> fTrueSigns;
+    
+    // Histograms
+    TH1D* fMomentumResolution;
+    TH1D* fSignEfficiency;
+    TH2D* fRecoVsTrueMomentum;
+    TH1D* fPullP;
+    TH1D* fChi2;
+    
+    // Track reconstruction parameters
+    double fMaxDistance = 10.0; // mm
+    double fMinHits = 3;
+    
+    void FindClusters();
+    void FitTracks();
+    double CalculateMomentum(const std::vector<Hit>& hits);
+    int DetermineChargeSign(const std::vector<Hit>& hits);
+};
+
+#endif

@@ -1,0 +1,1893 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+  <define/>
+
+  <materials>
+    <isotope N="54" Z="26" name="Fe540x600000650780">
+      <atom unit="g/mole" value="53.9396"/>
+    </isotope>
+    <isotope N="56" Z="26" name="Fe560x6000006507c0">
+      <atom unit="g/mole" value="55.9349"/>
+    </isotope>
+    <isotope N="57" Z="26" name="Fe570x600000650800">
+      <atom unit="g/mole" value="56.9354"/>
+    </isotope>
+    <isotope N="58" Z="26" name="Fe580x600000650840">
+      <atom unit="g/mole" value="57.9333"/>
+    </isotope>
+    <element name="Fe0x600002bb9080">
+      <fraction n="0.05845" ref="Fe540x600000650780"/>
+      <fraction n="0.91754" ref="Fe560x6000006507c0"/>
+      <fraction n="0.02119" ref="Fe570x600000650800"/>
+      <fraction n="0.00282" ref="Fe580x600000650840"/>
+    </element>
+    <material name="G4_Fe0x117ee0fc0" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="286"/>
+      <D unit="g/cm3" value="7.874"/>
+      <fraction n="1" ref="Fe0x600002bb9080"/>
+    </material>
+    <material Z="13" name="G4_Al0x117ee11e0" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="166"/>
+      <D unit="g/cm3" value="2.699"/>
+      <atom unit="g/mole" value="26.9815"/>
+    </material>
+    <isotope N="12" Z="6" name="C120x6000006504c0">
+      <atom unit="g/mole" value="12"/>
+    </isotope>
+    <isotope N="13" Z="6" name="C130x600000650500">
+      <atom unit="g/mole" value="13.0034"/>
+    </isotope>
+    <element name="C0x600002bb8dc0">
+      <fraction n="0.9893" ref="C120x6000006504c0"/>
+      <fraction n="0.0107" ref="C130x600000650500"/>
+    </element>
+    <isotope N="1" Z="1" name="H10x600000650900">
+      <atom unit="g/mole" value="1.00782503081372"/>
+    </isotope>
+    <isotope N="2" Z="1" name="H20x6000006508c0">
+      <atom unit="g/mole" value="2.01410199966617"/>
+    </isotope>
+    <element name="H0x600002bb9130">
+      <fraction n="0.999885" ref="H10x600000650900"/>
+      <fraction n="0.000115" ref="H20x6000006508c0"/>
+    </element>
+    <material name="G4_POLYSTYRENE0x117ee10d0" state="solid">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="68.7"/>
+      <D unit="g/cm3" value="1.06"/>
+      <fraction n="0.922577329294378" ref="C0x600002bb8dc0"/>
+      <fraction n="0.0774226707056217" ref="H0x600002bb9130"/>
+    </material>
+    <isotope N="14" Z="7" name="N140x600000650540">
+      <atom unit="g/mole" value="14.0031"/>
+    </isotope>
+    <isotope N="15" Z="7" name="N150x600000650580">
+      <atom unit="g/mole" value="15.0001"/>
+    </isotope>
+    <element name="N0x600002bb8e70">
+      <fraction n="0.99632" ref="N140x600000650540"/>
+      <fraction n="0.00368" ref="N150x600000650580"/>
+    </element>
+    <isotope N="16" Z="8" name="O160x6000006505c0">
+      <atom unit="g/mole" value="15.9949"/>
+    </isotope>
+    <isotope N="17" Z="8" name="O170x600000650640">
+      <atom unit="g/mole" value="16.9991"/>
+    </isotope>
+    <isotope N="18" Z="8" name="O180x600000650680">
+      <atom unit="g/mole" value="17.9992"/>
+    </isotope>
+    <element name="O0x600002bb8f20">
+      <fraction n="0.99757" ref="O160x6000006505c0"/>
+      <fraction n="0.00038" ref="O170x600000650640"/>
+      <fraction n="0.00205" ref="O180x600000650680"/>
+    </element>
+    <isotope N="36" Z="18" name="Ar360x6000006506c0">
+      <atom unit="g/mole" value="35.9675"/>
+    </isotope>
+    <isotope N="38" Z="18" name="Ar380x600000650700">
+      <atom unit="g/mole" value="37.9627"/>
+    </isotope>
+    <isotope N="40" Z="18" name="Ar400x600000650600">
+      <atom unit="g/mole" value="39.9624"/>
+    </isotope>
+    <element name="Ar0x600002bb8fd0">
+      <fraction n="0.003365" ref="Ar360x6000006506c0"/>
+      <fraction n="0.000632" ref="Ar380x600000650700"/>
+      <fraction n="0.996003" ref="Ar400x600000650600"/>
+    </element>
+    <material name="G4_AIR0x117ee0eb0" state="gas">
+      <T unit="K" value="293.15"/>
+      <MEE unit="eV" value="85.7"/>
+      <D unit="g/cm3" value="0.00120479"/>
+      <fraction n="0.000124000124000124" ref="C0x600002bb8dc0"/>
+      <fraction n="0.755267755267755" ref="N0x600002bb8e70"/>
+      <fraction n="0.231781231781232" ref="O0x600002bb8f20"/>
+      <fraction n="0.0128270128270128" ref="Ar0x600002bb8fd0"/>
+    </material>
+  </materials>
+
+  <solids>
+    <box lunit="mm" name="Magnet0x6000037c9b90" x="1000" y="1000" z="50"/>
+    <box lunit="mm" name="Slit0x6000037c9c00" x="500" y="20" z="50"/>
+    <subtraction name="MagnetMinusSlit10x600002da2c60">
+      <first ref="Magnet0x6000037c9b90"/>
+      <second ref="Slit0x6000037c9c00"/>
+      <position name="MagnetMinusSlit10x600002da2c60_pos" unit="mm" x="0" y="250" z="0"/>
+    </subtraction>
+    <subtraction name="MagnetWithSlits0x600002da2da0">
+      <first ref="MagnetMinusSlit10x600002da2c60"/>
+      <second ref="Slit0x6000037c9c00"/>
+      <position name="MagnetWithSlits0x600002da2da0_pos" unit="mm" x="0" y="-250" z="0"/>
+    </subtraction>
+    <box lunit="mm" name="AluStrip0x6000037c9c70" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037c9d50" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037c9e30" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037c9f10" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037c9ff0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca0d0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca1b0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca290" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca370" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca450" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca530" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca610" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca6f0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca7d0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca8b0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037ca990" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037caa70" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cab50" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cac30" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cad10" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cadf0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037caed0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cafb0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cb090" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cb170" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cb250" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cb330" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cb410" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cb4f0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cb5d0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cb6b0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cb790" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cb870" x="50" y="500" z="4"/>
+    <box lunit="mm" name="SciFiLayer0x6000037cb9c0" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x6000037cbb10" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x6000037cbbf0" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x6000037cbcd0" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="Magnet0x6000037cbdb0" x="1000" y="1000" z="50"/>
+    <box lunit="mm" name="Slit0x6000037cbe20" x="500" y="20" z="50"/>
+    <subtraction name="MagnetMinusSlit10x600002db0780">
+      <first ref="Magnet0x6000037cbdb0"/>
+      <second ref="Slit0x6000037cbe20"/>
+      <position name="MagnetMinusSlit10x600002db0780_pos" unit="mm" x="0" y="250" z="0"/>
+    </subtraction>
+    <subtraction name="MagnetWithSlits0x600002db0820">
+      <first ref="MagnetMinusSlit10x600002db0780"/>
+      <second ref="Slit0x6000037cbe20"/>
+      <position name="MagnetWithSlits0x600002db0820_pos" unit="mm" x="0" y="-250" z="0"/>
+    </subtraction>
+    <box lunit="mm" name="AluStrip0x6000037cbe90" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037cbf70" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037f8700" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037f8850" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037f9960" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037f59d0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724000" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037240e0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037241c0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037242a0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724380" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724460" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724540" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724620" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724700" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037247e0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037248c0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037249a0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724a80" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724b60" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724c40" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724d20" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724e00" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724ee0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003724fc0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037250a0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003725180" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003725260" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003725340" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003725420" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003725500" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037255e0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037256c0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="SciFiLayer0x600003725810" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x6000037258f0" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x6000037259d0" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x600003725ab0" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="Magnet0x600003725b90" x="1000" y="1000" z="50"/>
+    <box lunit="mm" name="Slit0x600003725c00" x="500" y="20" z="50"/>
+    <subtraction name="MagnetMinusSlit10x600002db2120">
+      <first ref="Magnet0x600003725b90"/>
+      <second ref="Slit0x600003725c00"/>
+      <position name="MagnetMinusSlit10x600002db2120_pos" unit="mm" x="0" y="250" z="0"/>
+    </subtraction>
+    <subtraction name="MagnetWithSlits0x600002db21c0">
+      <first ref="MagnetMinusSlit10x600002db2120"/>
+      <second ref="Slit0x600003725c00"/>
+      <position name="MagnetWithSlits0x600002db21c0_pos" unit="mm" x="0" y="-250" z="0"/>
+    </subtraction>
+    <box lunit="mm" name="AluStrip0x600003725c70" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003725d50" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003725e30" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003725f10" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003725ff0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037260d0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037261b0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726290" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726370" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726450" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726530" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726610" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037266f0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037267d0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037268b0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726990" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726a70" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726b50" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726c30" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726d10" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726df0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726ed0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003726fb0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003727090" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003727170" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003727250" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003727330" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003727410" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037274f0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037275d0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037276b0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003727790" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003727870" x="50" y="500" z="4"/>
+    <box lunit="mm" name="SciFiLayer0x6000037279c0" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x600003727aa0" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x600003727b80" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x600003727c60" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="Magnet0x600003727d40" x="1000" y="1000" z="50"/>
+    <box lunit="mm" name="Slit0x600003727db0" x="500" y="20" z="50"/>
+    <subtraction name="MagnetMinusSlit10x600002db3ac0">
+      <first ref="Magnet0x600003727d40"/>
+      <second ref="Slit0x600003727db0"/>
+      <position name="MagnetMinusSlit10x600002db3ac0_pos" unit="mm" x="0" y="250" z="0"/>
+    </subtraction>
+    <subtraction name="MagnetWithSlits0x600002db3b60">
+      <first ref="MagnetMinusSlit10x600002db3ac0"/>
+      <second ref="Slit0x600003727db0"/>
+      <position name="MagnetWithSlits0x600002db3b60_pos" unit="mm" x="0" y="-250" z="0"/>
+    </subtraction>
+    <box lunit="mm" name="AluStrip0x600003727e20" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003727f00" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720000" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037200e0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037201c0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037202a0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720380" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720460" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720540" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720620" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720700" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037207e0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037208c0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037209a0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720a80" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720b60" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720c40" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720d20" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720e00" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720ee0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003720fc0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037210a0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003721180" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003721260" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003721340" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003721420" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003721500" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037215e0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037216c0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037217a0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003721880" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003721960" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003721a40" x="50" y="500" z="4"/>
+    <box lunit="mm" name="SciFiLayer0x600003721b90" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x600003721c70" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x600003721d50" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x600003721e30" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="Magnet0x600003721f10" x="1000" y="1000" z="50"/>
+    <box lunit="mm" name="Slit0x600003721f80" x="500" y="20" z="50"/>
+    <subtraction name="MagnetMinusSlit10x600002dbd4a0">
+      <first ref="Magnet0x600003721f10"/>
+      <second ref="Slit0x600003721f80"/>
+      <position name="MagnetMinusSlit10x600002dbd4a0_pos" unit="mm" x="0" y="250" z="0"/>
+    </subtraction>
+    <subtraction name="MagnetWithSlits0x600002dbd540">
+      <first ref="MagnetMinusSlit10x600002dbd4a0"/>
+      <second ref="Slit0x600003721f80"/>
+      <position name="MagnetWithSlits0x600002dbd540_pos" unit="mm" x="0" y="-250" z="0"/>
+    </subtraction>
+    <box lunit="mm" name="AluStrip0x600003721ff0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037220d0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037221b0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722290" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722370" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722450" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722530" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722610" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037226f0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037227d0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037228b0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722990" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722a70" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722b50" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722c30" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722d10" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722df0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722ed0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003722fb0" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723090" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723170" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723250" x="50" y="250" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723330" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723410" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037234f0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037235d0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x6000037236b0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723790" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723870" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723950" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723a30" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723b10" x="50" y="500" z="4"/>
+    <box lunit="mm" name="AluStrip0x600003723bf0" x="50" y="500" z="4"/>
+    <box lunit="mm" name="SciFiLayer0x600003723d40" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x600003723e20" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x600003723f00" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="SciFiLayer0x60000372c000" x="1000" y="1000" z="2.5"/>
+    <box lunit="mm" name="World0x6000037c9b20" x="2400" y="2400" z="1500"/>
+  </solids>
+
+  <structure>
+    <volume name="MagnetLV0x600002da2e40">
+      <materialref ref="G4_Fe0x117ee0fc0"/>
+      <solidref ref="MagnetWithSlits0x600002da2da0"/>
+    </volume>
+    <volume name="AluStripLV0x600002da2f80">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037c9c70"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3020">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037c9d50"/>
+    </volume>
+    <volume name="AluStripLV0x600002da30c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037c9e30"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3160">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037c9f10"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3200">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037c9ff0"/>
+    </volume>
+    <volume name="AluStripLV0x600002da32a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca0d0"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3340">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca1b0"/>
+    </volume>
+    <volume name="AluStripLV0x600002da33e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca290"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3480">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca370"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3520">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca450"/>
+    </volume>
+    <volume name="AluStripLV0x600002da35c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca530"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3660">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca610"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3700">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca6f0"/>
+    </volume>
+    <volume name="AluStripLV0x600002da37a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca7d0"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3840">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca8b0"/>
+    </volume>
+    <volume name="AluStripLV0x600002da38e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037ca990"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3980">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037caa70"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3a20">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cab50"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3ac0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cac30"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3b60">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cad10"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3c00">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cadf0"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3ca0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037caed0"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3d40">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cafb0"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3de0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cb090"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3e80">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cb170"/>
+    </volume>
+    <volume name="AluStripLV0x600002da3f20">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cb250"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0000">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cb330"/>
+    </volume>
+    <volume name="AluStripLV0x600002db00a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cb410"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0140">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cb4f0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db01e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cb5d0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0280">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cb6b0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0320">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cb790"/>
+    </volume>
+    <volume name="AluStripLV0x600002db03c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cb870"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db0460">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x6000037cb9c0"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db05a0">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x6000037cbb10"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db0640">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x6000037cbbf0"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db06e0">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x6000037cbcd0"/>
+    </volume>
+    <volume name="MagnetLV0x600002db08c0">
+      <materialref ref="G4_Fe0x117ee0fc0"/>
+      <solidref ref="MagnetWithSlits0x600002db0820"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0a00">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cbe90"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0aa0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037cbf70"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0b40">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037f8700"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0be0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037f8850"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0c80">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037f9960"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0d20">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037f59d0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0dc0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724000"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0e60">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037240e0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0f00">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037241c0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db0fa0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037242a0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1040">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724380"/>
+    </volume>
+    <volume name="AluStripLV0x600002db10e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724460"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1180">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724540"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1220">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724620"/>
+    </volume>
+    <volume name="AluStripLV0x600002db12c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724700"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1360">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037247e0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1400">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037248c0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db14a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037249a0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1540">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724a80"/>
+    </volume>
+    <volume name="AluStripLV0x600002db15e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724b60"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1680">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724c40"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1720">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724d20"/>
+    </volume>
+    <volume name="AluStripLV0x600002db17c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724e00"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1860">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724ee0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1900">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003724fc0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db19a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037250a0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1a40">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003725180"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1ae0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003725260"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1b80">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003725340"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1c20">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003725420"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1cc0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003725500"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1d60">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037255e0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db1e00">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037256c0"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db1ea0">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003725810"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db1f40">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x6000037258f0"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db1fe0">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x6000037259d0"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db2080">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003725ab0"/>
+    </volume>
+    <volume name="MagnetLV0x600002db2260">
+      <materialref ref="G4_Fe0x117ee0fc0"/>
+      <solidref ref="MagnetWithSlits0x600002db21c0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db23a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003725c70"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2440">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003725d50"/>
+    </volume>
+    <volume name="AluStripLV0x600002db24e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003725e30"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2580">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003725f10"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2620">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003725ff0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db26c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037260d0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2760">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037261b0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2800">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726290"/>
+    </volume>
+    <volume name="AluStripLV0x600002db28a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726370"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2940">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726450"/>
+    </volume>
+    <volume name="AluStripLV0x600002db29e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726530"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2a80">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726610"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2b20">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037266f0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2bc0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037267d0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2c60">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037268b0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2d00">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726990"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2da0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726a70"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2e40">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726b50"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2ee0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726c30"/>
+    </volume>
+    <volume name="AluStripLV0x600002db2f80">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726d10"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3020">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726df0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db30c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726ed0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3160">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003726fb0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3200">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003727090"/>
+    </volume>
+    <volume name="AluStripLV0x600002db32a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003727170"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3340">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003727250"/>
+    </volume>
+    <volume name="AluStripLV0x600002db33e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003727330"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3480">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003727410"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3520">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037274f0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db35c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037275d0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3660">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037276b0"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3700">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003727790"/>
+    </volume>
+    <volume name="AluStripLV0x600002db37a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003727870"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db3840">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x6000037279c0"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db38e0">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003727aa0"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db3980">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003727b80"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002db3a20">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003727c60"/>
+    </volume>
+    <volume name="MagnetLV0x600002db3c00">
+      <materialref ref="G4_Fe0x117ee0fc0"/>
+      <solidref ref="MagnetWithSlits0x600002db3b60"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3d40">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003727e20"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3de0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003727f00"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3e80">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720000"/>
+    </volume>
+    <volume name="AluStripLV0x600002db3f20">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037200e0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc000">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037201c0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc0a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037202a0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc140">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720380"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc1e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720460"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc280">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720540"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc320">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720620"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc3c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720700"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc460">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037207e0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc500">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037208c0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc5a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037209a0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc640">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720a80"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc6e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720b60"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc780">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720c40"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc820">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720d20"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc8c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720e00"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbc960">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720ee0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbca00">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003720fc0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbcaa0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037210a0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbcb40">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003721180"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbcbe0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003721260"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbcc80">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003721340"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbcd20">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003721420"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbcdc0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003721500"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbce60">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037215e0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbcf00">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037216c0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbcfa0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037217a0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbd040">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003721880"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbd0e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003721960"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbd180">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003721a40"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002dbd220">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003721b90"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002dbd2c0">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003721c70"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002dbd360">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003721d50"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002dbd400">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003721e30"/>
+    </volume>
+    <volume name="MagnetLV0x600002dbd5e0">
+      <materialref ref="G4_Fe0x117ee0fc0"/>
+      <solidref ref="MagnetWithSlits0x600002dbd540"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbd720">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003721ff0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbd7c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037220d0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbd860">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037221b0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbd900">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722290"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbd9a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722370"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbda40">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722450"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbdae0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722530"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbdb80">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722610"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbdc20">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037226f0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbdcc0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037227d0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbdd60">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037228b0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbde00">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722990"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbdea0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722a70"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbdf40">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722b50"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbdfe0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722c30"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe080">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722d10"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe120">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722df0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe1c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722ed0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe260">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003722fb0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe300">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723090"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe3a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723170"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe440">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723250"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe4e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723330"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe580">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723410"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe620">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037234f0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe6c0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037235d0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe760">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x6000037236b0"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe800">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723790"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe8a0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723870"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe940">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723950"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbe9e0">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723a30"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbea80">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723b10"/>
+    </volume>
+    <volume name="AluStripLV0x600002dbeb20">
+      <materialref ref="G4_Al0x117ee11e0"/>
+      <solidref ref="AluStrip0x600003723bf0"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002dbebc0">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003723d40"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002dbec60">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003723e20"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002dbed00">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x600003723f00"/>
+    </volume>
+    <volume name="SciFiLayerLV0x600002dbeda0">
+      <materialref ref="G4_POLYSTYRENE0x117ee10d0"/>
+      <solidref ref="SciFiLayer0x60000372c000"/>
+    </volume>
+    <volume name="WorldLV0x600002da2d00">
+      <materialref ref="G4_AIR0x117ee0eb0"/>
+      <solidref ref="World0x6000037c9b20"/>
+      <physvol name="Magnet0x600003fd7930">
+        <volumeref ref="MagnetLV0x600002da2e40"/>
+        <position name="Magnet0x600003fd7930_pos" unit="mm" x="0" y="0" z="-620"/>
+      </physvol>
+      <physvol name="AluStrip0x600003fd7200">
+        <volumeref ref="AluStripLV0x600002da2f80"/>
+        <position name="AluStrip0x600003fd7200_pos" unit="mm" x="-250" y="375" z="-647"/>
+      </physvol>
+      <physvol copynumber="1" name="AluStrip0x600003fc3ac0">
+        <volumeref ref="AluStripLV0x600002da3020"/>
+        <position name="AluStrip0x600003fc3ac0_pos" unit="mm" x="-200" y="375" z="-593"/>
+      </physvol>
+      <physvol copynumber="2" name="AluStrip0x600003fc3bb0">
+        <volumeref ref="AluStripLV0x600002da30c0"/>
+        <position name="AluStrip0x600003fc3bb0_pos" unit="mm" x="-150" y="375" z="-647"/>
+      </physvol>
+      <physvol copynumber="3" name="AluStrip0x600003fc3b60">
+        <volumeref ref="AluStripLV0x600002da3160"/>
+        <position name="AluStrip0x600003fc3b60_pos" unit="mm" x="-100" y="375" z="-593"/>
+      </physvol>
+      <physvol copynumber="4" name="AluStrip0x600003fc30c0">
+        <volumeref ref="AluStripLV0x600002da3200"/>
+        <position name="AluStrip0x600003fc30c0_pos" unit="mm" x="-50" y="375" z="-647"/>
+      </physvol>
+      <physvol copynumber="5" name="AluStrip0x600003ff2530">
+        <volumeref ref="AluStripLV0x600002da32a0"/>
+        <position name="AluStrip0x600003ff2530_pos" unit="mm" x="0" y="375" z="-593"/>
+      </physvol>
+      <physvol copynumber="6" name="AluStrip0x600003ff1f40">
+        <volumeref ref="AluStripLV0x600002da3340"/>
+        <position name="AluStrip0x600003ff1f40_pos" unit="mm" x="50" y="375" z="-647"/>
+      </physvol>
+      <physvol copynumber="7" name="AluStrip0x600003fefac0">
+        <volumeref ref="AluStripLV0x600002da33e0"/>
+        <position name="AluStrip0x600003fefac0_pos" unit="mm" x="100" y="375" z="-593"/>
+      </physvol>
+      <physvol copynumber="8" name="AluStrip0x600003f30000">
+        <volumeref ref="AluStripLV0x600002da3480"/>
+        <position name="AluStrip0x600003f30000_pos" unit="mm" x="150" y="375" z="-647"/>
+      </physvol>
+      <physvol copynumber="9" name="AluStrip0x600003f30050">
+        <volumeref ref="AluStripLV0x600002da3520"/>
+        <position name="AluStrip0x600003f30050_pos" unit="mm" x="200" y="375" z="-593"/>
+      </physvol>
+      <physvol copynumber="10" name="AluStrip0x600003f300a0">
+        <volumeref ref="AluStripLV0x600002da35c0"/>
+        <position name="AluStrip0x600003f300a0_pos" unit="mm" x="250" y="375" z="-647"/>
+      </physvol>
+      <physvol name="AluStrip0x600003f300f0">
+        <volumeref ref="AluStripLV0x600002da3660"/>
+        <position name="AluStrip0x600003f300f0_pos" unit="mm" x="-250" y="-375" z="-647"/>
+      </physvol>
+      <physvol copynumber="1" name="AluStrip0x600003f30140">
+        <volumeref ref="AluStripLV0x600002da3700"/>
+        <position name="AluStrip0x600003f30140_pos" unit="mm" x="-200" y="-375" z="-593"/>
+      </physvol>
+      <physvol copynumber="2" name="AluStrip0x600003f30190">
+        <volumeref ref="AluStripLV0x600002da37a0"/>
+        <position name="AluStrip0x600003f30190_pos" unit="mm" x="-150" y="-375" z="-647"/>
+      </physvol>
+      <physvol copynumber="3" name="AluStrip0x600003f301e0">
+        <volumeref ref="AluStripLV0x600002da3840"/>
+        <position name="AluStrip0x600003f301e0_pos" unit="mm" x="-100" y="-375" z="-593"/>
+      </physvol>
+      <physvol copynumber="4" name="AluStrip0x600003f30230">
+        <volumeref ref="AluStripLV0x600002da38e0"/>
+        <position name="AluStrip0x600003f30230_pos" unit="mm" x="-50" y="-375" z="-647"/>
+      </physvol>
+      <physvol copynumber="5" name="AluStrip0x600003f30280">
+        <volumeref ref="AluStripLV0x600002da3980"/>
+        <position name="AluStrip0x600003f30280_pos" unit="mm" x="0" y="-375" z="-593"/>
+      </physvol>
+      <physvol copynumber="6" name="AluStrip0x600003f302d0">
+        <volumeref ref="AluStripLV0x600002da3a20"/>
+        <position name="AluStrip0x600003f302d0_pos" unit="mm" x="50" y="-375" z="-647"/>
+      </physvol>
+      <physvol copynumber="7" name="AluStrip0x600003f30320">
+        <volumeref ref="AluStripLV0x600002da3ac0"/>
+        <position name="AluStrip0x600003f30320_pos" unit="mm" x="100" y="-375" z="-593"/>
+      </physvol>
+      <physvol copynumber="8" name="AluStrip0x600003f30370">
+        <volumeref ref="AluStripLV0x600002da3b60"/>
+        <position name="AluStrip0x600003f30370_pos" unit="mm" x="150" y="-375" z="-647"/>
+      </physvol>
+      <physvol copynumber="9" name="AluStrip0x600003f303c0">
+        <volumeref ref="AluStripLV0x600002da3c00"/>
+        <position name="AluStrip0x600003f303c0_pos" unit="mm" x="200" y="-375" z="-593"/>
+      </physvol>
+      <physvol copynumber="10" name="AluStrip0x600003f30410">
+        <volumeref ref="AluStripLV0x600002da3ca0"/>
+        <position name="AluStrip0x600003f30410_pos" unit="mm" x="250" y="-375" z="-647"/>
+      </physvol>
+      <physvol copynumber="1" name="AluStrip0x600003f30460">
+        <volumeref ref="AluStripLV0x600002da3d40"/>
+        <position name="AluStrip0x600003f30460_pos" unit="mm" x="-250" y="0" z="-593"/>
+      </physvol>
+      <physvol copynumber="2" name="AluStrip0x600003f304b0">
+        <volumeref ref="AluStripLV0x600002da3de0"/>
+        <position name="AluStrip0x600003f304b0_pos" unit="mm" x="-200" y="0" z="-647"/>
+      </physvol>
+      <physvol copynumber="3" name="AluStrip0x600003f30500">
+        <volumeref ref="AluStripLV0x600002da3e80"/>
+        <position name="AluStrip0x600003f30500_pos" unit="mm" x="-150" y="0" z="-593"/>
+      </physvol>
+      <physvol copynumber="4" name="AluStrip0x600003f30550">
+        <volumeref ref="AluStripLV0x600002da3f20"/>
+        <position name="AluStrip0x600003f30550_pos" unit="mm" x="-100" y="0" z="-647"/>
+      </physvol>
+      <physvol copynumber="5" name="AluStrip0x600003f305a0">
+        <volumeref ref="AluStripLV0x600002db0000"/>
+        <position name="AluStrip0x600003f305a0_pos" unit="mm" x="-50" y="0" z="-593"/>
+      </physvol>
+      <physvol copynumber="6" name="AluStrip0x600003f305f0">
+        <volumeref ref="AluStripLV0x600002db00a0"/>
+        <position name="AluStrip0x600003f305f0_pos" unit="mm" x="0" y="0" z="-647"/>
+      </physvol>
+      <physvol copynumber="7" name="AluStrip0x600003f30640">
+        <volumeref ref="AluStripLV0x600002db0140"/>
+        <position name="AluStrip0x600003f30640_pos" unit="mm" x="50" y="0" z="-593"/>
+      </physvol>
+      <physvol copynumber="8" name="AluStrip0x600003f30690">
+        <volumeref ref="AluStripLV0x600002db01e0"/>
+        <position name="AluStrip0x600003f30690_pos" unit="mm" x="100" y="0" z="-647"/>
+      </physvol>
+      <physvol copynumber="9" name="AluStrip0x600003f306e0">
+        <volumeref ref="AluStripLV0x600002db0280"/>
+        <position name="AluStrip0x600003f306e0_pos" unit="mm" x="150" y="0" z="-593"/>
+      </physvol>
+      <physvol copynumber="10" name="AluStrip0x600003f30730">
+        <volumeref ref="AluStripLV0x600002db0320"/>
+        <position name="AluStrip0x600003f30730_pos" unit="mm" x="200" y="0" z="-647"/>
+      </physvol>
+      <physvol copynumber="11" name="AluStrip0x600003f30780">
+        <volumeref ref="AluStripLV0x600002db03c0"/>
+        <position name="AluStrip0x600003f30780_pos" unit="mm" x="250" y="0" z="-593"/>
+      </physvol>
+      <physvol name="SciFiLayer0x600003f30870">
+        <volumeref ref="SciFiLayerLV0x600002db0460"/>
+        <position name="SciFiLayer0x600003f30870_pos" unit="mm" x="0" y="0" z="-571.75"/>
+      </physvol>
+      <physvol copynumber="1" name="SciFiLayer0x600003f30910">
+        <volumeref ref="SciFiLayerLV0x600002db05a0"/>
+        <position name="SciFiLayer0x600003f30910_pos" unit="mm" x="0" y="0" z="-569.25"/>
+      </physvol>
+      <physvol copynumber="2" name="SciFiLayer0x600003f30960">
+        <volumeref ref="SciFiLayerLV0x600002db0640"/>
+        <position name="SciFiLayer0x600003f30960_pos" unit="mm" x="0" y="0" z="-566.75"/>
+      </physvol>
+      <physvol copynumber="3" name="SciFiLayer0x600003f309b0">
+        <volumeref ref="SciFiLayerLV0x600002db06e0"/>
+        <position name="SciFiLayer0x600003f309b0_pos" unit="mm" x="0" y="0" z="-564.25"/>
+      </physvol>
+      <physvol copynumber="1" name="Magnet0x600003f30aa0">
+        <volumeref ref="MagnetLV0x600002db08c0"/>
+        <position name="Magnet0x600003f30aa0_pos" unit="mm" x="0" y="0" z="-360"/>
+      </physvol>
+      <physvol copynumber="1000" name="AluStrip0x600003f30b40">
+        <volumeref ref="AluStripLV0x600002db0a00"/>
+        <position name="AluStrip0x600003f30b40_pos" unit="mm" x="-250" y="375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1001" name="AluStrip0x600003f30b90">
+        <volumeref ref="AluStripLV0x600002db0aa0"/>
+        <position name="AluStrip0x600003f30b90_pos" unit="mm" x="-200" y="375" z="-333"/>
+      </physvol>
+      <physvol copynumber="1002" name="AluStrip0x600003f30be0">
+        <volumeref ref="AluStripLV0x600002db0b40"/>
+        <position name="AluStrip0x600003f30be0_pos" unit="mm" x="-150" y="375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1003" name="AluStrip0x600003f30c30">
+        <volumeref ref="AluStripLV0x600002db0be0"/>
+        <position name="AluStrip0x600003f30c30_pos" unit="mm" x="-100" y="375" z="-333"/>
+      </physvol>
+      <physvol copynumber="1004" name="AluStrip0x600003f30c80">
+        <volumeref ref="AluStripLV0x600002db0c80"/>
+        <position name="AluStrip0x600003f30c80_pos" unit="mm" x="-50" y="375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1005" name="AluStrip0x600003f30cd0">
+        <volumeref ref="AluStripLV0x600002db0d20"/>
+        <position name="AluStrip0x600003f30cd0_pos" unit="mm" x="0" y="375" z="-333"/>
+      </physvol>
+      <physvol copynumber="1006" name="AluStrip0x600003f30d20">
+        <volumeref ref="AluStripLV0x600002db0dc0"/>
+        <position name="AluStrip0x600003f30d20_pos" unit="mm" x="50" y="375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1007" name="AluStrip0x600003f30d70">
+        <volumeref ref="AluStripLV0x600002db0e60"/>
+        <position name="AluStrip0x600003f30d70_pos" unit="mm" x="100" y="375" z="-333"/>
+      </physvol>
+      <physvol copynumber="1008" name="AluStrip0x600003f30dc0">
+        <volumeref ref="AluStripLV0x600002db0f00"/>
+        <position name="AluStrip0x600003f30dc0_pos" unit="mm" x="150" y="375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1009" name="AluStrip0x600003f30e10">
+        <volumeref ref="AluStripLV0x600002db0fa0"/>
+        <position name="AluStrip0x600003f30e10_pos" unit="mm" x="200" y="375" z="-333"/>
+      </physvol>
+      <physvol copynumber="1010" name="AluStrip0x600003f30e60">
+        <volumeref ref="AluStripLV0x600002db1040"/>
+        <position name="AluStrip0x600003f30e60_pos" unit="mm" x="250" y="375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1000" name="AluStrip0x600003f30eb0">
+        <volumeref ref="AluStripLV0x600002db10e0"/>
+        <position name="AluStrip0x600003f30eb0_pos" unit="mm" x="-250" y="-375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1001" name="AluStrip0x600003f30f00">
+        <volumeref ref="AluStripLV0x600002db1180"/>
+        <position name="AluStrip0x600003f30f00_pos" unit="mm" x="-200" y="-375" z="-333"/>
+      </physvol>
+      <physvol copynumber="1002" name="AluStrip0x600003f30f50">
+        <volumeref ref="AluStripLV0x600002db1220"/>
+        <position name="AluStrip0x600003f30f50_pos" unit="mm" x="-150" y="-375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1003" name="AluStrip0x600003f30fa0">
+        <volumeref ref="AluStripLV0x600002db12c0"/>
+        <position name="AluStrip0x600003f30fa0_pos" unit="mm" x="-100" y="-375" z="-333"/>
+      </physvol>
+      <physvol copynumber="1004" name="AluStrip0x600003f30ff0">
+        <volumeref ref="AluStripLV0x600002db1360"/>
+        <position name="AluStrip0x600003f30ff0_pos" unit="mm" x="-50" y="-375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1005" name="AluStrip0x600003f31040">
+        <volumeref ref="AluStripLV0x600002db1400"/>
+        <position name="AluStrip0x600003f31040_pos" unit="mm" x="0" y="-375" z="-333"/>
+      </physvol>
+      <physvol copynumber="1006" name="AluStrip0x600003f31090">
+        <volumeref ref="AluStripLV0x600002db14a0"/>
+        <position name="AluStrip0x600003f31090_pos" unit="mm" x="50" y="-375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1007" name="AluStrip0x600003f310e0">
+        <volumeref ref="AluStripLV0x600002db1540"/>
+        <position name="AluStrip0x600003f310e0_pos" unit="mm" x="100" y="-375" z="-333"/>
+      </physvol>
+      <physvol copynumber="1008" name="AluStrip0x600003f31130">
+        <volumeref ref="AluStripLV0x600002db15e0"/>
+        <position name="AluStrip0x600003f31130_pos" unit="mm" x="150" y="-375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1009" name="AluStrip0x600003f31180">
+        <volumeref ref="AluStripLV0x600002db1680"/>
+        <position name="AluStrip0x600003f31180_pos" unit="mm" x="200" y="-375" z="-333"/>
+      </physvol>
+      <physvol copynumber="1010" name="AluStrip0x600003f311d0">
+        <volumeref ref="AluStripLV0x600002db1720"/>
+        <position name="AluStrip0x600003f311d0_pos" unit="mm" x="250" y="-375" z="-387"/>
+      </physvol>
+      <physvol copynumber="1001" name="AluStrip0x600003f31220">
+        <volumeref ref="AluStripLV0x600002db17c0"/>
+        <position name="AluStrip0x600003f31220_pos" unit="mm" x="-250" y="0" z="-333"/>
+      </physvol>
+      <physvol copynumber="1002" name="AluStrip0x600003f31270">
+        <volumeref ref="AluStripLV0x600002db1860"/>
+        <position name="AluStrip0x600003f31270_pos" unit="mm" x="-200" y="0" z="-387"/>
+      </physvol>
+      <physvol copynumber="1003" name="AluStrip0x600003f312c0">
+        <volumeref ref="AluStripLV0x600002db1900"/>
+        <position name="AluStrip0x600003f312c0_pos" unit="mm" x="-150" y="0" z="-333"/>
+      </physvol>
+      <physvol copynumber="1004" name="AluStrip0x600003f31310">
+        <volumeref ref="AluStripLV0x600002db19a0"/>
+        <position name="AluStrip0x600003f31310_pos" unit="mm" x="-100" y="0" z="-387"/>
+      </physvol>
+      <physvol copynumber="1005" name="AluStrip0x600003f31360">
+        <volumeref ref="AluStripLV0x600002db1a40"/>
+        <position name="AluStrip0x600003f31360_pos" unit="mm" x="-50" y="0" z="-333"/>
+      </physvol>
+      <physvol copynumber="1006" name="AluStrip0x600003f313b0">
+        <volumeref ref="AluStripLV0x600002db1ae0"/>
+        <position name="AluStrip0x600003f313b0_pos" unit="mm" x="0" y="0" z="-387"/>
+      </physvol>
+      <physvol copynumber="1007" name="AluStrip0x600003f31400">
+        <volumeref ref="AluStripLV0x600002db1b80"/>
+        <position name="AluStrip0x600003f31400_pos" unit="mm" x="50" y="0" z="-333"/>
+      </physvol>
+      <physvol copynumber="1008" name="AluStrip0x600003f31450">
+        <volumeref ref="AluStripLV0x600002db1c20"/>
+        <position name="AluStrip0x600003f31450_pos" unit="mm" x="100" y="0" z="-387"/>
+      </physvol>
+      <physvol copynumber="1009" name="AluStrip0x600003f314a0">
+        <volumeref ref="AluStripLV0x600002db1cc0"/>
+        <position name="AluStrip0x600003f314a0_pos" unit="mm" x="150" y="0" z="-333"/>
+      </physvol>
+      <physvol copynumber="1010" name="AluStrip0x600003f314f0">
+        <volumeref ref="AluStripLV0x600002db1d60"/>
+        <position name="AluStrip0x600003f314f0_pos" unit="mm" x="200" y="0" z="-387"/>
+      </physvol>
+      <physvol copynumber="1011" name="AluStrip0x600003f31540">
+        <volumeref ref="AluStripLV0x600002db1e00"/>
+        <position name="AluStrip0x600003f31540_pos" unit="mm" x="250" y="0" z="-333"/>
+      </physvol>
+      <physvol copynumber="10" name="SciFiLayer0x600003f31590">
+        <volumeref ref="SciFiLayerLV0x600002db1ea0"/>
+        <position name="SciFiLayer0x600003f31590_pos" unit="mm" x="0" y="0" z="-311.75"/>
+      </physvol>
+      <physvol copynumber="11" name="SciFiLayer0x600003f315e0">
+        <volumeref ref="SciFiLayerLV0x600002db1f40"/>
+        <position name="SciFiLayer0x600003f315e0_pos" unit="mm" x="0" y="0" z="-309.25"/>
+      </physvol>
+      <physvol copynumber="12" name="SciFiLayer0x600003f31630">
+        <volumeref ref="SciFiLayerLV0x600002db1fe0"/>
+        <position name="SciFiLayer0x600003f31630_pos" unit="mm" x="0" y="0" z="-306.75"/>
+      </physvol>
+      <physvol copynumber="13" name="SciFiLayer0x600003f31680">
+        <volumeref ref="SciFiLayerLV0x600002db2080"/>
+        <position name="SciFiLayer0x600003f31680_pos" unit="mm" x="0" y="0" z="-304.25"/>
+      </physvol>
+      <physvol copynumber="2" name="Magnet0x600003f31770">
+        <volumeref ref="MagnetLV0x600002db2260"/>
+        <position name="Magnet0x600003f31770_pos" unit="mm" x="0" y="0" z="-100"/>
+      </physvol>
+      <physvol copynumber="2000" name="AluStrip0x600003f31810">
+        <volumeref ref="AluStripLV0x600002db23a0"/>
+        <position name="AluStrip0x600003f31810_pos" unit="mm" x="-250" y="375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2001" name="AluStrip0x600003f31860">
+        <volumeref ref="AluStripLV0x600002db2440"/>
+        <position name="AluStrip0x600003f31860_pos" unit="mm" x="-200" y="375" z="-73"/>
+      </physvol>
+      <physvol copynumber="2002" name="AluStrip0x600003f318b0">
+        <volumeref ref="AluStripLV0x600002db24e0"/>
+        <position name="AluStrip0x600003f318b0_pos" unit="mm" x="-150" y="375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2003" name="AluStrip0x600003f31900">
+        <volumeref ref="AluStripLV0x600002db2580"/>
+        <position name="AluStrip0x600003f31900_pos" unit="mm" x="-100" y="375" z="-73"/>
+      </physvol>
+      <physvol copynumber="2004" name="AluStrip0x600003f31950">
+        <volumeref ref="AluStripLV0x600002db2620"/>
+        <position name="AluStrip0x600003f31950_pos" unit="mm" x="-50" y="375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2005" name="AluStrip0x600003f319a0">
+        <volumeref ref="AluStripLV0x600002db26c0"/>
+        <position name="AluStrip0x600003f319a0_pos" unit="mm" x="0" y="375" z="-73"/>
+      </physvol>
+      <physvol copynumber="2006" name="AluStrip0x600003f319f0">
+        <volumeref ref="AluStripLV0x600002db2760"/>
+        <position name="AluStrip0x600003f319f0_pos" unit="mm" x="50" y="375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2007" name="AluStrip0x600003f31a40">
+        <volumeref ref="AluStripLV0x600002db2800"/>
+        <position name="AluStrip0x600003f31a40_pos" unit="mm" x="100" y="375" z="-73"/>
+      </physvol>
+      <physvol copynumber="2008" name="AluStrip0x600003f31a90">
+        <volumeref ref="AluStripLV0x600002db28a0"/>
+        <position name="AluStrip0x600003f31a90_pos" unit="mm" x="150" y="375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2009" name="AluStrip0x600003f31ae0">
+        <volumeref ref="AluStripLV0x600002db2940"/>
+        <position name="AluStrip0x600003f31ae0_pos" unit="mm" x="200" y="375" z="-73"/>
+      </physvol>
+      <physvol copynumber="2010" name="AluStrip0x600003f31b30">
+        <volumeref ref="AluStripLV0x600002db29e0"/>
+        <position name="AluStrip0x600003f31b30_pos" unit="mm" x="250" y="375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2000" name="AluStrip0x600003f31b80">
+        <volumeref ref="AluStripLV0x600002db2a80"/>
+        <position name="AluStrip0x600003f31b80_pos" unit="mm" x="-250" y="-375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2001" name="AluStrip0x600003f31bd0">
+        <volumeref ref="AluStripLV0x600002db2b20"/>
+        <position name="AluStrip0x600003f31bd0_pos" unit="mm" x="-200" y="-375" z="-73"/>
+      </physvol>
+      <physvol copynumber="2002" name="AluStrip0x600003f31c20">
+        <volumeref ref="AluStripLV0x600002db2bc0"/>
+        <position name="AluStrip0x600003f31c20_pos" unit="mm" x="-150" y="-375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2003" name="AluStrip0x600003f31c70">
+        <volumeref ref="AluStripLV0x600002db2c60"/>
+        <position name="AluStrip0x600003f31c70_pos" unit="mm" x="-100" y="-375" z="-73"/>
+      </physvol>
+      <physvol copynumber="2004" name="AluStrip0x600003f31cc0">
+        <volumeref ref="AluStripLV0x600002db2d00"/>
+        <position name="AluStrip0x600003f31cc0_pos" unit="mm" x="-50" y="-375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2005" name="AluStrip0x600003f31d10">
+        <volumeref ref="AluStripLV0x600002db2da0"/>
+        <position name="AluStrip0x600003f31d10_pos" unit="mm" x="0" y="-375" z="-73"/>
+      </physvol>
+      <physvol copynumber="2006" name="AluStrip0x600003f31d60">
+        <volumeref ref="AluStripLV0x600002db2e40"/>
+        <position name="AluStrip0x600003f31d60_pos" unit="mm" x="50" y="-375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2007" name="AluStrip0x600003f31db0">
+        <volumeref ref="AluStripLV0x600002db2ee0"/>
+        <position name="AluStrip0x600003f31db0_pos" unit="mm" x="100" y="-375" z="-73"/>
+      </physvol>
+      <physvol copynumber="2008" name="AluStrip0x600003f31e00">
+        <volumeref ref="AluStripLV0x600002db2f80"/>
+        <position name="AluStrip0x600003f31e00_pos" unit="mm" x="150" y="-375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2009" name="AluStrip0x600003f31e50">
+        <volumeref ref="AluStripLV0x600002db3020"/>
+        <position name="AluStrip0x600003f31e50_pos" unit="mm" x="200" y="-375" z="-73"/>
+      </physvol>
+      <physvol copynumber="2010" name="AluStrip0x600003f31ea0">
+        <volumeref ref="AluStripLV0x600002db30c0"/>
+        <position name="AluStrip0x600003f31ea0_pos" unit="mm" x="250" y="-375" z="-127"/>
+      </physvol>
+      <physvol copynumber="2001" name="AluStrip0x600003f31ef0">
+        <volumeref ref="AluStripLV0x600002db3160"/>
+        <position name="AluStrip0x600003f31ef0_pos" unit="mm" x="-250" y="0" z="-73"/>
+      </physvol>
+      <physvol copynumber="2002" name="AluStrip0x600003f31f40">
+        <volumeref ref="AluStripLV0x600002db3200"/>
+        <position name="AluStrip0x600003f31f40_pos" unit="mm" x="-200" y="0" z="-127"/>
+      </physvol>
+      <physvol copynumber="2003" name="AluStrip0x600003f31f90">
+        <volumeref ref="AluStripLV0x600002db32a0"/>
+        <position name="AluStrip0x600003f31f90_pos" unit="mm" x="-150" y="0" z="-73"/>
+      </physvol>
+      <physvol copynumber="2004" name="AluStrip0x600003f31fe0">
+        <volumeref ref="AluStripLV0x600002db3340"/>
+        <position name="AluStrip0x600003f31fe0_pos" unit="mm" x="-100" y="0" z="-127"/>
+      </physvol>
+      <physvol copynumber="2005" name="AluStrip0x600003f32030">
+        <volumeref ref="AluStripLV0x600002db33e0"/>
+        <position name="AluStrip0x600003f32030_pos" unit="mm" x="-50" y="0" z="-73"/>
+      </physvol>
+      <physvol copynumber="2006" name="AluStrip0x600003f32080">
+        <volumeref ref="AluStripLV0x600002db3480"/>
+        <position name="AluStrip0x600003f32080_pos" unit="mm" x="0" y="0" z="-127"/>
+      </physvol>
+      <physvol copynumber="2007" name="AluStrip0x600003f320d0">
+        <volumeref ref="AluStripLV0x600002db3520"/>
+        <position name="AluStrip0x600003f320d0_pos" unit="mm" x="50" y="0" z="-73"/>
+      </physvol>
+      <physvol copynumber="2008" name="AluStrip0x600003f32120">
+        <volumeref ref="AluStripLV0x600002db35c0"/>
+        <position name="AluStrip0x600003f32120_pos" unit="mm" x="100" y="0" z="-127"/>
+      </physvol>
+      <physvol copynumber="2009" name="AluStrip0x600003f32170">
+        <volumeref ref="AluStripLV0x600002db3660"/>
+        <position name="AluStrip0x600003f32170_pos" unit="mm" x="150" y="0" z="-73"/>
+      </physvol>
+      <physvol copynumber="2010" name="AluStrip0x600003f321c0">
+        <volumeref ref="AluStripLV0x600002db3700"/>
+        <position name="AluStrip0x600003f321c0_pos" unit="mm" x="200" y="0" z="-127"/>
+      </physvol>
+      <physvol copynumber="2011" name="AluStrip0x600003f32210">
+        <volumeref ref="AluStripLV0x600002db37a0"/>
+        <position name="AluStrip0x600003f32210_pos" unit="mm" x="250" y="0" z="-73"/>
+      </physvol>
+      <physvol copynumber="20" name="SciFiLayer0x600003f32260">
+        <volumeref ref="SciFiLayerLV0x600002db3840"/>
+        <position name="SciFiLayer0x600003f32260_pos" unit="mm" x="0" y="0" z="-51.75"/>
+      </physvol>
+      <physvol copynumber="21" name="SciFiLayer0x600003f322b0">
+        <volumeref ref="SciFiLayerLV0x600002db38e0"/>
+        <position name="SciFiLayer0x600003f322b0_pos" unit="mm" x="0" y="0" z="-49.25"/>
+      </physvol>
+      <physvol copynumber="22" name="SciFiLayer0x600003f32300">
+        <volumeref ref="SciFiLayerLV0x600002db3980"/>
+        <position name="SciFiLayer0x600003f32300_pos" unit="mm" x="0" y="0" z="-46.75"/>
+      </physvol>
+      <physvol copynumber="23" name="SciFiLayer0x600003f32350">
+        <volumeref ref="SciFiLayerLV0x600002db3a20"/>
+        <position name="SciFiLayer0x600003f32350_pos" unit="mm" x="0" y="0" z="-44.25"/>
+      </physvol>
+      <physvol copynumber="3" name="Magnet0x600003f32440">
+        <volumeref ref="MagnetLV0x600002db3c00"/>
+        <position name="Magnet0x600003f32440_pos" unit="mm" x="0" y="0" z="160"/>
+      </physvol>
+      <physvol copynumber="3000" name="AluStrip0x600003f324e0">
+        <volumeref ref="AluStripLV0x600002db3d40"/>
+        <position name="AluStrip0x600003f324e0_pos" unit="mm" x="-250" y="375" z="133"/>
+      </physvol>
+      <physvol copynumber="3001" name="AluStrip0x600003f32530">
+        <volumeref ref="AluStripLV0x600002db3de0"/>
+        <position name="AluStrip0x600003f32530_pos" unit="mm" x="-200" y="375" z="187"/>
+      </physvol>
+      <physvol copynumber="3002" name="AluStrip0x600003f32580">
+        <volumeref ref="AluStripLV0x600002db3e80"/>
+        <position name="AluStrip0x600003f32580_pos" unit="mm" x="-150" y="375" z="133"/>
+      </physvol>
+      <physvol copynumber="3003" name="AluStrip0x600003f325d0">
+        <volumeref ref="AluStripLV0x600002db3f20"/>
+        <position name="AluStrip0x600003f325d0_pos" unit="mm" x="-100" y="375" z="187"/>
+      </physvol>
+      <physvol copynumber="3004" name="AluStrip0x600003f32620">
+        <volumeref ref="AluStripLV0x600002dbc000"/>
+        <position name="AluStrip0x600003f32620_pos" unit="mm" x="-50" y="375" z="133"/>
+      </physvol>
+      <physvol copynumber="3005" name="AluStrip0x600003f32670">
+        <volumeref ref="AluStripLV0x600002dbc0a0"/>
+        <position name="AluStrip0x600003f32670_pos" unit="mm" x="0" y="375" z="187"/>
+      </physvol>
+      <physvol copynumber="3006" name="AluStrip0x600003f326c0">
+        <volumeref ref="AluStripLV0x600002dbc140"/>
+        <position name="AluStrip0x600003f326c0_pos" unit="mm" x="50" y="375" z="133"/>
+      </physvol>
+      <physvol copynumber="3007" name="AluStrip0x600003f32710">
+        <volumeref ref="AluStripLV0x600002dbc1e0"/>
+        <position name="AluStrip0x600003f32710_pos" unit="mm" x="100" y="375" z="187"/>
+      </physvol>
+      <physvol copynumber="3008" name="AluStrip0x600003f32760">
+        <volumeref ref="AluStripLV0x600002dbc280"/>
+        <position name="AluStrip0x600003f32760_pos" unit="mm" x="150" y="375" z="133"/>
+      </physvol>
+      <physvol copynumber="3009" name="AluStrip0x600003f327b0">
+        <volumeref ref="AluStripLV0x600002dbc320"/>
+        <position name="AluStrip0x600003f327b0_pos" unit="mm" x="200" y="375" z="187"/>
+      </physvol>
+      <physvol copynumber="3010" name="AluStrip0x600003f32800">
+        <volumeref ref="AluStripLV0x600002dbc3c0"/>
+        <position name="AluStrip0x600003f32800_pos" unit="mm" x="250" y="375" z="133"/>
+      </physvol>
+      <physvol copynumber="3000" name="AluStrip0x600003f32850">
+        <volumeref ref="AluStripLV0x600002dbc460"/>
+        <position name="AluStrip0x600003f32850_pos" unit="mm" x="-250" y="-375" z="133"/>
+      </physvol>
+      <physvol copynumber="3001" name="AluStrip0x600003f328a0">
+        <volumeref ref="AluStripLV0x600002dbc500"/>
+        <position name="AluStrip0x600003f328a0_pos" unit="mm" x="-200" y="-375" z="187"/>
+      </physvol>
+      <physvol copynumber="3002" name="AluStrip0x600003f328f0">
+        <volumeref ref="AluStripLV0x600002dbc5a0"/>
+        <position name="AluStrip0x600003f328f0_pos" unit="mm" x="-150" y="-375" z="133"/>
+      </physvol>
+      <physvol copynumber="3003" name="AluStrip0x600003f32940">
+        <volumeref ref="AluStripLV0x600002dbc640"/>
+        <position name="AluStrip0x600003f32940_pos" unit="mm" x="-100" y="-375" z="187"/>
+      </physvol>
+      <physvol copynumber="3004" name="AluStrip0x600003f32990">
+        <volumeref ref="AluStripLV0x600002dbc6e0"/>
+        <position name="AluStrip0x600003f32990_pos" unit="mm" x="-50" y="-375" z="133"/>
+      </physvol>
+      <physvol copynumber="3005" name="AluStrip0x600003f329e0">
+        <volumeref ref="AluStripLV0x600002dbc780"/>
+        <position name="AluStrip0x600003f329e0_pos" unit="mm" x="0" y="-375" z="187"/>
+      </physvol>
+      <physvol copynumber="3006" name="AluStrip0x600003f32a30">
+        <volumeref ref="AluStripLV0x600002dbc820"/>
+        <position name="AluStrip0x600003f32a30_pos" unit="mm" x="50" y="-375" z="133"/>
+      </physvol>
+      <physvol copynumber="3007" name="AluStrip0x600003f32a80">
+        <volumeref ref="AluStripLV0x600002dbc8c0"/>
+        <position name="AluStrip0x600003f32a80_pos" unit="mm" x="100" y="-375" z="187"/>
+      </physvol>
+      <physvol copynumber="3008" name="AluStrip0x600003f32ad0">
+        <volumeref ref="AluStripLV0x600002dbc960"/>
+        <position name="AluStrip0x600003f32ad0_pos" unit="mm" x="150" y="-375" z="133"/>
+      </physvol>
+      <physvol copynumber="3009" name="AluStrip0x600003f32b20">
+        <volumeref ref="AluStripLV0x600002dbca00"/>
+        <position name="AluStrip0x600003f32b20_pos" unit="mm" x="200" y="-375" z="187"/>
+      </physvol>
+      <physvol copynumber="3010" name="AluStrip0x600003f32b70">
+        <volumeref ref="AluStripLV0x600002dbcaa0"/>
+        <position name="AluStrip0x600003f32b70_pos" unit="mm" x="250" y="-375" z="133"/>
+      </physvol>
+      <physvol copynumber="3001" name="AluStrip0x600003f32bc0">
+        <volumeref ref="AluStripLV0x600002dbcb40"/>
+        <position name="AluStrip0x600003f32bc0_pos" unit="mm" x="-250" y="0" z="187"/>
+      </physvol>
+      <physvol copynumber="3002" name="AluStrip0x600003f32c10">
+        <volumeref ref="AluStripLV0x600002dbcbe0"/>
+        <position name="AluStrip0x600003f32c10_pos" unit="mm" x="-200" y="0" z="133"/>
+      </physvol>
+      <physvol copynumber="3003" name="AluStrip0x600003f32c60">
+        <volumeref ref="AluStripLV0x600002dbcc80"/>
+        <position name="AluStrip0x600003f32c60_pos" unit="mm" x="-150" y="0" z="187"/>
+      </physvol>
+      <physvol copynumber="3004" name="AluStrip0x600003f32cb0">
+        <volumeref ref="AluStripLV0x600002dbcd20"/>
+        <position name="AluStrip0x600003f32cb0_pos" unit="mm" x="-100" y="0" z="133"/>
+      </physvol>
+      <physvol copynumber="3005" name="AluStrip0x600003f32d00">
+        <volumeref ref="AluStripLV0x600002dbcdc0"/>
+        <position name="AluStrip0x600003f32d00_pos" unit="mm" x="-50" y="0" z="187"/>
+      </physvol>
+      <physvol copynumber="3006" name="AluStrip0x600003f32d50">
+        <volumeref ref="AluStripLV0x600002dbce60"/>
+        <position name="AluStrip0x600003f32d50_pos" unit="mm" x="0" y="0" z="133"/>
+      </physvol>
+      <physvol copynumber="3007" name="AluStrip0x600003f32da0">
+        <volumeref ref="AluStripLV0x600002dbcf00"/>
+        <position name="AluStrip0x600003f32da0_pos" unit="mm" x="50" y="0" z="187"/>
+      </physvol>
+      <physvol copynumber="3008" name="AluStrip0x600003f32df0">
+        <volumeref ref="AluStripLV0x600002dbcfa0"/>
+        <position name="AluStrip0x600003f32df0_pos" unit="mm" x="100" y="0" z="133"/>
+      </physvol>
+      <physvol copynumber="3009" name="AluStrip0x600003f32e40">
+        <volumeref ref="AluStripLV0x600002dbd040"/>
+        <position name="AluStrip0x600003f32e40_pos" unit="mm" x="150" y="0" z="187"/>
+      </physvol>
+      <physvol copynumber="3010" name="AluStrip0x600003f32e90">
+        <volumeref ref="AluStripLV0x600002dbd0e0"/>
+        <position name="AluStrip0x600003f32e90_pos" unit="mm" x="200" y="0" z="133"/>
+      </physvol>
+      <physvol copynumber="3011" name="AluStrip0x600003f32ee0">
+        <volumeref ref="AluStripLV0x600002dbd180"/>
+        <position name="AluStrip0x600003f32ee0_pos" unit="mm" x="250" y="0" z="187"/>
+      </physvol>
+      <physvol copynumber="30" name="SciFiLayer0x600003f32f30">
+        <volumeref ref="SciFiLayerLV0x600002dbd220"/>
+        <position name="SciFiLayer0x600003f32f30_pos" unit="mm" x="0" y="0" z="208.25"/>
+      </physvol>
+      <physvol copynumber="31" name="SciFiLayer0x600003f32f80">
+        <volumeref ref="SciFiLayerLV0x600002dbd2c0"/>
+        <position name="SciFiLayer0x600003f32f80_pos" unit="mm" x="0" y="0" z="210.75"/>
+      </physvol>
+      <physvol copynumber="32" name="SciFiLayer0x600003f32fd0">
+        <volumeref ref="SciFiLayerLV0x600002dbd360"/>
+        <position name="SciFiLayer0x600003f32fd0_pos" unit="mm" x="0" y="0" z="213.25"/>
+      </physvol>
+      <physvol copynumber="33" name="SciFiLayer0x600003f33020">
+        <volumeref ref="SciFiLayerLV0x600002dbd400"/>
+        <position name="SciFiLayer0x600003f33020_pos" unit="mm" x="0" y="0" z="215.75"/>
+      </physvol>
+      <physvol copynumber="4" name="Magnet0x600003f33110">
+        <volumeref ref="MagnetLV0x600002dbd5e0"/>
+        <position name="Magnet0x600003f33110_pos" unit="mm" x="0" y="0" z="420"/>
+      </physvol>
+      <physvol copynumber="4000" name="AluStrip0x600003f331b0">
+        <volumeref ref="AluStripLV0x600002dbd720"/>
+        <position name="AluStrip0x600003f331b0_pos" unit="mm" x="-250" y="375" z="393"/>
+      </physvol>
+      <physvol copynumber="4001" name="AluStrip0x600003f33200">
+        <volumeref ref="AluStripLV0x600002dbd7c0"/>
+        <position name="AluStrip0x600003f33200_pos" unit="mm" x="-200" y="375" z="447"/>
+      </physvol>
+      <physvol copynumber="4002" name="AluStrip0x600003f33250">
+        <volumeref ref="AluStripLV0x600002dbd860"/>
+        <position name="AluStrip0x600003f33250_pos" unit="mm" x="-150" y="375" z="393"/>
+      </physvol>
+      <physvol copynumber="4003" name="AluStrip0x600003f332a0">
+        <volumeref ref="AluStripLV0x600002dbd900"/>
+        <position name="AluStrip0x600003f332a0_pos" unit="mm" x="-100" y="375" z="447"/>
+      </physvol>
+      <physvol copynumber="4004" name="AluStrip0x600003f332f0">
+        <volumeref ref="AluStripLV0x600002dbd9a0"/>
+        <position name="AluStrip0x600003f332f0_pos" unit="mm" x="-50" y="375" z="393"/>
+      </physvol>
+      <physvol copynumber="4005" name="AluStrip0x600003f33340">
+        <volumeref ref="AluStripLV0x600002dbda40"/>
+        <position name="AluStrip0x600003f33340_pos" unit="mm" x="0" y="375" z="447"/>
+      </physvol>
+      <physvol copynumber="4006" name="AluStrip0x600003f33390">
+        <volumeref ref="AluStripLV0x600002dbdae0"/>
+        <position name="AluStrip0x600003f33390_pos" unit="mm" x="50" y="375" z="393"/>
+      </physvol>
+      <physvol copynumber="4007" name="AluStrip0x600003f333e0">
+        <volumeref ref="AluStripLV0x600002dbdb80"/>
+        <position name="AluStrip0x600003f333e0_pos" unit="mm" x="100" y="375" z="447"/>
+      </physvol>
+      <physvol copynumber="4008" name="AluStrip0x600003f33430">
+        <volumeref ref="AluStripLV0x600002dbdc20"/>
+        <position name="AluStrip0x600003f33430_pos" unit="mm" x="150" y="375" z="393"/>
+      </physvol>
+      <physvol copynumber="4009" name="AluStrip0x600003f33480">
+        <volumeref ref="AluStripLV0x600002dbdcc0"/>
+        <position name="AluStrip0x600003f33480_pos" unit="mm" x="200" y="375" z="447"/>
+      </physvol>
+      <physvol copynumber="4010" name="AluStrip0x600003f334d0">
+        <volumeref ref="AluStripLV0x600002dbdd60"/>
+        <position name="AluStrip0x600003f334d0_pos" unit="mm" x="250" y="375" z="393"/>
+      </physvol>
+      <physvol copynumber="4000" name="AluStrip0x600003f33520">
+        <volumeref ref="AluStripLV0x600002dbde00"/>
+        <position name="AluStrip0x600003f33520_pos" unit="mm" x="-250" y="-375" z="393"/>
+      </physvol>
+      <physvol copynumber="4001" name="AluStrip0x600003f33570">
+        <volumeref ref="AluStripLV0x600002dbdea0"/>
+        <position name="AluStrip0x600003f33570_pos" unit="mm" x="-200" y="-375" z="447"/>
+      </physvol>
+      <physvol copynumber="4002" name="AluStrip0x600003f335c0">
+        <volumeref ref="AluStripLV0x600002dbdf40"/>
+        <position name="AluStrip0x600003f335c0_pos" unit="mm" x="-150" y="-375" z="393"/>
+      </physvol>
+      <physvol copynumber="4003" name="AluStrip0x600003f33610">
+        <volumeref ref="AluStripLV0x600002dbdfe0"/>
+        <position name="AluStrip0x600003f33610_pos" unit="mm" x="-100" y="-375" z="447"/>
+      </physvol>
+      <physvol copynumber="4004" name="AluStrip0x600003f33660">
+        <volumeref ref="AluStripLV0x600002dbe080"/>
+        <position name="AluStrip0x600003f33660_pos" unit="mm" x="-50" y="-375" z="393"/>
+      </physvol>
+      <physvol copynumber="4005" name="AluStrip0x600003f336b0">
+        <volumeref ref="AluStripLV0x600002dbe120"/>
+        <position name="AluStrip0x600003f336b0_pos" unit="mm" x="0" y="-375" z="447"/>
+      </physvol>
+      <physvol copynumber="4006" name="AluStrip0x600003f33700">
+        <volumeref ref="AluStripLV0x600002dbe1c0"/>
+        <position name="AluStrip0x600003f33700_pos" unit="mm" x="50" y="-375" z="393"/>
+      </physvol>
+      <physvol copynumber="4007" name="AluStrip0x600003f33750">
+        <volumeref ref="AluStripLV0x600002dbe260"/>
+        <position name="AluStrip0x600003f33750_pos" unit="mm" x="100" y="-375" z="447"/>
+      </physvol>
+      <physvol copynumber="4008" name="AluStrip0x600003f337a0">
+        <volumeref ref="AluStripLV0x600002dbe300"/>
+        <position name="AluStrip0x600003f337a0_pos" unit="mm" x="150" y="-375" z="393"/>
+      </physvol>
+      <physvol copynumber="4009" name="AluStrip0x600003f337f0">
+        <volumeref ref="AluStripLV0x600002dbe3a0"/>
+        <position name="AluStrip0x600003f337f0_pos" unit="mm" x="200" y="-375" z="447"/>
+      </physvol>
+      <physvol copynumber="4010" name="AluStrip0x600003f33840">
+        <volumeref ref="AluStripLV0x600002dbe440"/>
+        <position name="AluStrip0x600003f33840_pos" unit="mm" x="250" y="-375" z="393"/>
+      </physvol>
+      <physvol copynumber="4001" name="AluStrip0x600003f33890">
+        <volumeref ref="AluStripLV0x600002dbe4e0"/>
+        <position name="AluStrip0x600003f33890_pos" unit="mm" x="-250" y="0" z="447"/>
+      </physvol>
+      <physvol copynumber="4002" name="AluStrip0x600003f338e0">
+        <volumeref ref="AluStripLV0x600002dbe580"/>
+        <position name="AluStrip0x600003f338e0_pos" unit="mm" x="-200" y="0" z="393"/>
+      </physvol>
+      <physvol copynumber="4003" name="AluStrip0x600003f33930">
+        <volumeref ref="AluStripLV0x600002dbe620"/>
+        <position name="AluStrip0x600003f33930_pos" unit="mm" x="-150" y="0" z="447"/>
+      </physvol>
+      <physvol copynumber="4004" name="AluStrip0x600003f33980">
+        <volumeref ref="AluStripLV0x600002dbe6c0"/>
+        <position name="AluStrip0x600003f33980_pos" unit="mm" x="-100" y="0" z="393"/>
+      </physvol>
+      <physvol copynumber="4005" name="AluStrip0x600003f339d0">
+        <volumeref ref="AluStripLV0x600002dbe760"/>
+        <position name="AluStrip0x600003f339d0_pos" unit="mm" x="-50" y="0" z="447"/>
+      </physvol>
+      <physvol copynumber="4006" name="AluStrip0x600003f33a20">
+        <volumeref ref="AluStripLV0x600002dbe800"/>
+        <position name="AluStrip0x600003f33a20_pos" unit="mm" x="0" y="0" z="393"/>
+      </physvol>
+      <physvol copynumber="4007" name="AluStrip0x600003f33a70">
+        <volumeref ref="AluStripLV0x600002dbe8a0"/>
+        <position name="AluStrip0x600003f33a70_pos" unit="mm" x="50" y="0" z="447"/>
+      </physvol>
+      <physvol copynumber="4008" name="AluStrip0x600003f33ac0">
+        <volumeref ref="AluStripLV0x600002dbe940"/>
+        <position name="AluStrip0x600003f33ac0_pos" unit="mm" x="100" y="0" z="393"/>
+      </physvol>
+      <physvol copynumber="4009" name="AluStrip0x600003f33b10">
+        <volumeref ref="AluStripLV0x600002dbe9e0"/>
+        <position name="AluStrip0x600003f33b10_pos" unit="mm" x="150" y="0" z="447"/>
+      </physvol>
+      <physvol copynumber="4010" name="AluStrip0x600003f33b60">
+        <volumeref ref="AluStripLV0x600002dbea80"/>
+        <position name="AluStrip0x600003f33b60_pos" unit="mm" x="200" y="0" z="393"/>
+      </physvol>
+      <physvol copynumber="4011" name="AluStrip0x600003f33bb0">
+        <volumeref ref="AluStripLV0x600002dbeb20"/>
+        <position name="AluStrip0x600003f33bb0_pos" unit="mm" x="250" y="0" z="447"/>
+      </physvol>
+      <physvol copynumber="40" name="SciFiLayer0x600003f33c00">
+        <volumeref ref="SciFiLayerLV0x600002dbebc0"/>
+        <position name="SciFiLayer0x600003f33c00_pos" unit="mm" x="0" y="0" z="468.25"/>
+      </physvol>
+      <physvol copynumber="41" name="SciFiLayer0x600003f33c50">
+        <volumeref ref="SciFiLayerLV0x600002dbec60"/>
+        <position name="SciFiLayer0x600003f33c50_pos" unit="mm" x="0" y="0" z="470.75"/>
+      </physvol>
+      <physvol copynumber="42" name="SciFiLayer0x600003f33ca0">
+        <volumeref ref="SciFiLayerLV0x600002dbed00"/>
+        <position name="SciFiLayer0x600003f33ca0_pos" unit="mm" x="0" y="0" z="473.25"/>
+      </physvol>
+      <physvol copynumber="43" name="SciFiLayer0x600003f33cf0">
+        <volumeref ref="SciFiLayerLV0x600002dbeda0"/>
+        <position name="SciFiLayer0x600003f33cf0_pos" unit="mm" x="0" y="0" z="475.75"/>
+      </physvol>
+    </volume>
+  </structure>
+
+  <setup name="Default" version="1.0">
+    <world ref="WorldLV0x600002da2d00"/>
+  </setup>
+
+</gdml>

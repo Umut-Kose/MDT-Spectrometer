@@ -1,0 +1,3 @@
+/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/build/CMakeFiles/MuonSpectrometerSim.dir
+/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/build/CMakeFiles/edit_cache.dir
+/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/build/CMakeFiles/rebuild_cache.dir

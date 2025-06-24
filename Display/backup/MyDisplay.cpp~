@@ -1,0 +1,210 @@
+#include "MyDisplay.h"
+#include <TApplication.h>
+#include <TFile.h>
+#include <TGeoManager.h>
+#include <TEveGeoNode.h>
+#include <TEveBoxSet.h>
+#include <TGButton.h>
+#include <TGLabel.h>
+#include <TSystem.h>
+#include <iostream>
+
+MyDisplay::MyDisplay() : 
+    fEventTree(nullptr),
+    fNumberEntry(nullptr),
+    fEventNumber(0),
+    fHitElements(nullptr) 
+{
+}
+
+MyDisplay::~MyDisplay() {
+    if (fHitElements) {
+        gEve->RemoveElement(fHitElements);
+        delete fHitElements;
+    }
+}
+
+void MyDisplay::Initialize(const std::string& rootFile, const std::string& gdmlFile) {
+    // Load data
+    fEventTree = ReadDataFile(rootFile);
+    if (!fEventTree) {
+        throw std::runtime_error("Failed to load event data");
+    }
+
+    // Initialize EVE
+    TEveManager::Create(kTRUE, "V");
+
+    // Load geometry
+    LoadGeometry(gdmlFile);
+    AddAxes();
+
+    // Create GUI
+    CreateGUI();
+}
+
+TTree* MyDisplay::ReadDataFile(const std::string& rootFileName) {
+    TFile* file = TFile::Open(rootFileName.c_str());
+    if (!file || file->IsZombie()) {
+        std::cerr << "Error opening file: " << rootFileName << std::endl;
+        return nullptr;
+    }
+
+    TTree* tree = dynamic_cast<TTree*>(file->Get("Hits"));
+    if (!tree) {
+        std::cerr << "Error: 'Hits' tree not found in file" << std::endl;
+        file->Close();
+        return nullptr;
+    }
+
+    tree->SetDirectory(0);  // Detach from file
+    file->Close();
+    return tree;
+}
+
+void MyDisplay::LoadGeometry(const std::string& gdmlFile) {
+    TGeoManager::Import(gdmlFile.c_str());
+    if (!gGeoManager) {
+        throw std::runtime_error("Failed to load GDML geometry");
+    }
+    TEveGeoTopNode* topNode = new TEveGeoTopNode(gGeoManager, gGeoManager->GetTopNode());
+    gEve->AddGlobalElement(topNode);
+}
+
+void MyDisplay::AddAxes() {
+    TEveLine* xAxis = new TEveLine(2);
+    xAxis->SetLineColor(kRed); xAxis->SetLineWidth(2);
+    xAxis->SetPoint(0, 0, 0, 0); xAxis->SetPoint(1, 50, 0, 0);
+    gEve->AddElement(xAxis);
+    
+    TEveLine* yAxis = new TEveLine(2);
+    yAxis->SetLineColor(kGreen); yAxis->SetLineWidth(2);
+    yAxis->SetPoint(0, 0, 0, 0); yAxis->SetPoint(1, 0, 50, 0);
+    gEve->AddElement(yAxis);
+    
+    TEveLine* zAxis = new TEveLine(2);
+    zAxis->SetLineColor(kBlue); zAxis->SetLineWidth(2);
+    zAxis->SetPoint(0, 0, 0, 0); zAxis->SetPoint(1, 0, 0, 50);
+    gEve->AddElement(zAxis);
+}
+
+void MyDisplay::CreateGUI() {
+    TEveBrowser* browser = gEve->GetBrowser();
+    browser->StartEmbedding(TRootBrowser::kLeft);
+    
+    TGMainFrame* frmMain = new TGMainFrame(gClient->GetRoot(), 1000, 600);
+    frmMain->SetWindowName("Event Display");
+    
+    TGVerticalFrame* vf = new TGVerticalFrame(frmMain);
+    
+    // Event control group
+    TGGroupFrame* gfEvents = new TGGroupFrame(vf, "Event Control");
+    {
+        fNumberEntry = new TGNumberEntry(gfEvents, 0, 6, -1, 
+                                       TGNumberFormat::kNESInteger,
+                                       TGNumberFormat::kNEAAnyNumber,
+                                       TGNumberFormat::kNELLimitMinMax, 0, 10000);
+        
+        TGTextButton* showBtn = new TGTextButton(gfEvents, "Show Event");
+        showBtn->Connect("Clicked()", "MyDisplay", this, "SetEventNumber()");
+        
+        TGTextButton* nextBtn = new TGTextButton(gfEvents, "Next");
+        nextBtn->Connect("Clicked()", "MyDisplay", this, "NextEvent()");
+        
+        TGTextButton* prevBtn = new TGTextButton(gfEvents, "Previous");
+        prevBtn->Connect("Clicked()", "MyDisplay", this, "PreviousEvent()");
+        
+        // Layout
+        gfEvents->AddFrame(fNumberEntry, new TGLayoutHints(kLHintsLeft, 2, 2, 2, 2));
+        gfEvents->AddFrame(showBtn, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
+        gfEvents->AddFrame(nextBtn, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
+        gfEvents->AddFrame(prevBtn, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
+    }
+    vf->AddFrame(gfEvents, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
+    
+    // Exit button
+    TGTextButton* exitBtn = new TGTextButton(vf, "Exit");
+    exitBtn->Connect("Clicked()", "MyDisplay", this, "DoExit()");
+    vf->AddFrame(exitBtn, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
+    
+    frmMain->AddFrame(vf);
+    frmMain->MapSubwindows();
+    frmMain->Resize();
+    frmMain->MapWindow();
+    
+    browser->StopEmbedding();
+    browser->SetTabTitle("Control", 0);
+}
+
+void MyDisplay::SetEventNumber() {
+    fEventNumber = fNumberEntry->GetNumber();
+    std::cout << "Loading event " << fEventNumber << std::endl;
+    DrawEvent(fEventNumber);
+}
+
+void MyDisplay::NextEvent() {
+    fEventNumber++;
+    fNumberEntry->SetNumber(fEventNumber);
+    std::cout << "Loading event " << fEventNumber << std::endl;
+    DrawEvent(fEventNumber);
+}
+
+void MyDisplay::PreviousEvent() {
+    fEventNumber--;
+    fNumberEntry->SetNumber(fEventNumber);
+    std::cout << "Loading event " << fEventNumber << std::endl;
+    DrawEvent(fEventNumber);
+}
+
+void MyDisplay::DoExit() {
+    gApplication->Terminate(0);
+}
+
+void MyDisplay::DrawEvent(Long64_t ientry) {
+    if (!gEve) return;
+    
+    // Clear previous event
+    if (fHitElements) {
+        gEve->RemoveElement(fHitElements);
+        delete fHitElements;
+    }
+    fHitElements = new TEveElementList("Hits");
+    
+    // Display new event
+    DisplayEventHits(ientry);
+    gEve->Redraw3D(kTRUE);
+}
+
+void MyDisplay::DisplayEventHits(int targetEventID) {
+    std::vector<double>* x = nullptr;
+    std::vector<double>* y = nullptr;
+    std::vector<double>* z = nullptr;
+    Int_t eventID = -1;
+    
+    fEventTree->SetBranchAddress("x", &x);
+    fEventTree->SetBranchAddress("y", &y);
+    fEventTree->SetBranchAddress("z", &z);
+    fEventTree->SetBranchAddress("eventID", &eventID);
+    
+    TEveBoxSet* hits = new TEveBoxSet("Hits");
+    hits->Reset(TEveBoxSet::kBT_AABox, true, 64);
+    hits->SetMainColor(kBlue);
+    
+    const float halfSize = 5; // mm
+    for (Long64_t i = 0; i < fEventTree->GetEntries(); ++i) {
+        fEventTree->GetEntry(i);
+        if (eventID != targetEventID) continue;
+        
+        for (size_t j = 0; j < x->size(); ++j) {
+            hits->AddBox(x->at(j), y->at(j), z->at(j), halfSize, halfSize, halfSize);
+        }
+    }
+    
+    fHitElements->AddElement(hits);
+    gEve->AddElement(fHitElements);
+}
+
+void MyDisplay::Run() {
+    if (gApplication) {
+        gApplication->Run();
+    }
+}

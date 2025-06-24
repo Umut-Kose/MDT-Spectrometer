@@ -1,0 +1,31 @@
+#include "MagneticField.hh"
+#include "G4SystemOfUnits.hh"
+#include <cmath>
+
+MagneticField::MagneticField() {}
+MagneticField::~MagneticField() {}
+
+void MagneticField::GetFieldValue(const G4double point[4], G4double* Bfield) const {
+    // point[0] = x, point[1] = y, point[2] = z
+
+    // Assume magnet box extends: x ∈ [-500, 500] mm, y ∈ [-500, 500] mm, z ∈ [–25, +25] mm (centered)
+    G4double x = point[0];
+    G4double y = point[1];
+    G4double z = point[2];
+
+    // Default: no field
+    Bfield[0] = Bfield[1] = Bfield[2] = 0.0;
+
+    // Magnetic field only inside iron (±25 mm around center z of each plate)
+    if (std::abs(x) <= 500.*mm && std::abs(y) <= 500.*mm && std::abs(z) <= 25.*mm) {
+
+        if (std::abs(y) <= 125.*mm) {
+            // Central region of the iron plate: −1.5 T
+            Bfield[2] = -1.5 * tesla;
+        } else if (std::abs(y) > 125.*mm && std::abs(y) < 500.*mm) {
+            // Top/bottom edges of the iron plate: +1.5 T
+            Bfield[2] = +1.5 * tesla;
+        }
+        // Else: in iron but outside relevant regions ⇒ B = 0
+    }
+}

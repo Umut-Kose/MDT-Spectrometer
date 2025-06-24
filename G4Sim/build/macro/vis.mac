@@ -1,0 +1,9 @@
+/vis/open OGLSQt
+/vis/drawVolume
+/vis/viewer/set/autoRefresh true
+/vis/viewer/set/viewpointThetaPhi 30 30
+/vis/scene/add/axes 0 0 0 0.5 m
+/vis/scene/add/volume
+/vis/sceneHandler/attach
+/vis/viewer/zoom 1.2
+/vis/viewer/update

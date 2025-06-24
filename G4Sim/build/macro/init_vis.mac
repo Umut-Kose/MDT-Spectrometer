@@ -1,0 +1,21 @@
+/run/initialize
+
+/vis/open TSGQt
+/vis/scene/create
+/vis/drawVolume
+/vis/scene/add/axes 0 0 0 100 mm
+
+/tracking/storeTrajectory 1
+/vis/modeling/trajectories/create/drawByCharge
+/vis/scene/add/trajectories
+/vis/scene/endOfEventAction accumulate
+
+/vis/scene/add/magneticField
+
+
+/vis/viewer/set/style wireframe
+/vis/viewer/set/viewpointThetaPhi 90 180
+/vis/viewer/update
+
+/run/beamOn 1
+
