@@ -15,6 +15,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/MuonSpectrometerSim.dir/src/RunAction.cc.o.d"
   "CMakeFiles/MuonSpectrometerSim.dir/src/SciFiSD.cc.o"
   "CMakeFiles/MuonSpectrometerSim.dir/src/SciFiSD.cc.o.d"
+  "CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o"
+  "CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o.d"
   "MuonSpectrometerSim"
   "MuonSpectrometerSim.pdb"
 )

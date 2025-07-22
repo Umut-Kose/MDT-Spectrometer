@@ -1,0 +1,30 @@
+# .gitignore
+# macOS
+.DS_Store
+
+# Build folders and binaries
+**/build/
+**/CMakeFiles/
+*.o
+*.so
+*.a
+*.bin
+*.pcm
+*.cc.o*
+*.cc.d
+*.exe
+*.root
+*.jpg
+*.png
+*.dat
+*.log
+
+# CMake cache
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+
+# Editor files
+*~
+# VSCode
+.vscode/

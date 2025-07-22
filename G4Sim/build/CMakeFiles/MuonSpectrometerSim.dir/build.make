@@ -181,6 +181,20 @@ CMakeFiles/MuonSpectrometerSim.dir/src/SciFiSD.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MuonSpectrometerSim.dir/src/SciFiSD.cc.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/src/SciFiSD.cc -o CMakeFiles/MuonSpectrometerSim.dir/src/SciFiSD.cc.s
 
+CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o: CMakeFiles/MuonSpectrometerSim.dir/flags.make
+CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o: /Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/src/SteppingAction.cc
+CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o: CMakeFiles/MuonSpectrometerSim.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o -MF CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o.d -o CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o -c /Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/src/SteppingAction.cc
+
+CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/src/SteppingAction.cc > CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.i
+
+CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/src/SteppingAction.cc -o CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.s
+
 # Object files for target MuonSpectrometerSim
 MuonSpectrometerSim_OBJECTS = \
 "CMakeFiles/MuonSpectrometerSim.dir/MuonSpectrometerSim.cc.o" \
@@ -190,7 +204,8 @@ MuonSpectrometerSim_OBJECTS = \
 "CMakeFiles/MuonSpectrometerSim.dir/src/MagneticField.cc.o" \
 "CMakeFiles/MuonSpectrometerSim.dir/src/PrimaryGeneratorAction.cc.o" \
 "CMakeFiles/MuonSpectrometerSim.dir/src/RunAction.cc.o" \
-"CMakeFiles/MuonSpectrometerSim.dir/src/SciFiSD.cc.o"
+"CMakeFiles/MuonSpectrometerSim.dir/src/SciFiSD.cc.o" \
+"CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o"
 
 # External object files for target MuonSpectrometerSim
 MuonSpectrometerSim_EXTERNAL_OBJECTS =
@@ -203,6 +218,7 @@ MuonSpectrometerSim: CMakeFiles/MuonSpectrometerSim.dir/src/MagneticField.cc.o
 MuonSpectrometerSim: CMakeFiles/MuonSpectrometerSim.dir/src/PrimaryGeneratorAction.cc.o
 MuonSpectrometerSim: CMakeFiles/MuonSpectrometerSim.dir/src/RunAction.cc.o
 MuonSpectrometerSim: CMakeFiles/MuonSpectrometerSim.dir/src/SciFiSD.cc.o
+MuonSpectrometerSim: CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o
 MuonSpectrometerSim: CMakeFiles/MuonSpectrometerSim.dir/build.make
 MuonSpectrometerSim: /Users/ukose/sw/kits/geant4-v11.2.1-install_macfix/lib/libG4Tree.dylib
 MuonSpectrometerSim: /Users/ukose/sw/kits/geant4-v11.2.1-install_macfix/lib/libG4FR.dylib
@@ -266,7 +282,7 @@ MuonSpectrometerSim: /Users/ukose/sw/kits/geant4-v11.2.1-install_macfix/lib/libG
 MuonSpectrometerSim: /Users/ukose/sw/kits/geant4-v11.2.1-install_macfix/lib/libG4clhep.dylib
 MuonSpectrometerSim: /Users/ukose/sw/kits/geant4-v11.2.1-install_macfix/lib/libG4ptl.2.3.3.dylib
 MuonSpectrometerSim: CMakeFiles/MuonSpectrometerSim.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable MuonSpectrometerSim"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/G4Sim/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable MuonSpectrometerSim"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/MuonSpectrometerSim.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

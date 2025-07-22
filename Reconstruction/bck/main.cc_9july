@@ -1,0 +1,26 @@
+#include "TrackAnalysis.hh"
+#include <iostream>
+
+#include "TrackAnalysis.hh"
+#include <RKTrackRep.h>
+#include <FieldManager.h>
+#include <DAF.h>
+#include <PlanarMeasurement.h>
+#include <SpacepointMeasurement.h>
+#include <MaterialEffects.h> 
+
+
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <input_file.root>" << std::endl;
+        return 1;
+    }
+
+    genfit::MaterialEffects::getInstance()->setNoEffects();
+
+    TrackAnalysis analyzer;
+    analyzer.ProcessFile(argv[1]);
+    analyzer.WriteResults("tracking_results.root");
+
+    return 0;
+}

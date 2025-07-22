@@ -1,0 +1,706 @@
+#include "TrackAnalysis.hh"
+#include <RKTrackRep.h>
+#include <FieldManager.h>
+#include <DAF.h>
+#include <PlanarMeasurement.h>
+#include <SpacepointMeasurement.h>
+
+#include <StateOnPlane.h>
+#include <FitStatus.h> 
+#include <TMath.h>
+#include <iostream>
+
+#include "TDecompChol.h" 
+#include "TDecompLU.h"
+#include <TVector3.h>
+#include <TMatrixD.h>
+#include <TMatrixDSym.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <map>
+#include <cmath>
+
+
+using namespace genfit;
+
+
+TrackAnalysis::TrackAnalysis() : trackRep_(nullptr), magneticField_(nullptr) {
+    // Initialize GENFIT track representation (muon)
+    trackRep_ = new genfit::RKTrackRep(13); // PDG code for muon
+    // Set up magnetic field
+    magneticField_ = new MagneticField();
+    genfit::FieldManager::getInstance()->init(magneticField_);
+    trackRep_ = new genfit::RKTrackRep(13); // PDG code for muon
+}
+
+TrackAnalysis::~TrackAnalysis() {
+    delete trackRep_;
+    delete magneticField_;
+}
+
+
+void TrackAnalysis::ProcessFile(const char* filename) {
+    TFile file(filename);
+    TTree* tree = (TTree*)file.Get("Hits");
+    if (!tree) {
+        std::cerr << "Error: Could not find tree 'Hits'" << std::endl;
+        return;
+    }
+
+    // Branch variables
+    int eventID;
+    std::vector<double> *x=0, *y=0, *z=0, *px=0, *py=0, *pz=0;
+    std::vector<int> *pdg=0, *trackID=0, *layerID=0, *stationID=0;
+
+    tree->SetBranchAddress("eventID",    &eventID);
+    tree->SetBranchAddress("x",          &x);
+    tree->SetBranchAddress("y",          &y);
+    tree->SetBranchAddress("z",          &z);
+    tree->SetBranchAddress("px",         &px);
+    tree->SetBranchAddress("py",         &py);
+    tree->SetBranchAddress("pz",         &pz);
+    tree->SetBranchAddress("pdg",        &pdg);
+    tree->SetBranchAddress("trackID",    &trackID);
+    tree->SetBranchAddress("layerID",    &layerID);
+    tree->SetBranchAddress("stationID",  &stationID);
+    int nEvents = tree->GetEntries();
+    for (int i = 0; i < nEvents; ++i) {
+        tree->GetEntry(i);
+        ProcessEvent(eventID, *trackID, *x, *y, *z, *px, *py, *pz, *layerID, *stationID, *pdg);
+    }
+}
+
+void TrackAnalysis::ProcessEvent(
+    int eventID, 
+    const std::vector<int>& trackID,
+    const std::vector<double>& x,
+    const std::vector<double>& y,
+    const std::vector<double>& z,
+    const std::vector<double>& px,
+    const std::vector<double>& py,
+    const std::vector<double>& pz,
+    const std::vector<int>& layerID,
+    const std::vector<int>& stationID,
+    const std::vector<int>& pdg) 
+    {
+        int DEBUG = 0; // Set to 1 to enable debug output
+        // Convert to Hit structures
+        std::vector<Hit> hits;
+        if (eventID>10)
+            return; // Skip events that are not the first one
+        for (size_t i = 0; i < x.size(); ++i) 
+        {
+            hits.push_back({
+                .stationID = stationID[i],
+                .layerID = layerID[i],
+                .trackID   = trackID[i],
+                .pdg = pdg[i],
+                .position = TVector3(x[i], y[i], z[i]),
+                .momentum = TVector3(px[i], py[i], pz[i])
+            });
+        }
+
+        //PrintOut(hits);
+        //FitStationTracklets(hits);
+
+        // group by trackID
+        std::map<int, std::vector<Hit>> trackHits;
+        for (const auto& hit : hits) {
+            trackHits[hit.trackID].push_back(hit);
+        }
+        // Process each track separately
+        for (const auto& entry : trackHits) {
+            int trackID = entry.first;
+            const auto& trackHitsVec = entry.second;
+            if (trackHitsVec.size() < 4) continue; // Skip tracks with too few hits
+            
+            // get the truth momentum from the first hit
+            double truthP = trackHitsVec.front().momentum.Mag() / 1000.; // Convert MeV/c to GeV/c
+        
+            // Print truth momentum and first hit information
+            const auto& first = trackHitsVec.front();
+            std::cout << "[DEBUG] Track " << trackID
+                    << " px=" << first.momentum.X()
+                    << " py=" << first.momentum.Y()
+                    << " pz=" << first.momentum.Z()
+                    << " Truth Momentum: " << truthP
+                    << std::endl;
+
+            // Print hits for this track
+            std::cout << "Track ID: " << trackID << ", Hits: " << trackHitsVec.size() << std::endl;
+            if(DEBUG)
+            for (const auto& hit : trackHitsVec) {
+                std::cout << "  Hit at (" << hit.position.X() 
+                          << ", " << hit.position.Y() 
+                          << ", " << hit.position.Z() 
+                          << "), PDG: " << hit.pdg 
+                          << std::endl;
+            }
+        
+            results_.emplace_back();
+            results_.back().truthMomentum = truthP;
+
+            // circle fir for Bx
+            double bx_field = 1.5; // Tesla,
+            results_.back().circleMomentum = CircleFitMomentum_Bx(trackHitsVec, bx_field); // or -1.5 if needed
+            // Run Kalman Filter
+            RunKalmanFilter(trackHitsVec);
+            // Run Genfit
+            RunGenfit(trackHitsVec);
+
+            // Print event summary
+            const auto& r = results_.back();
+            std::cout << "Event ID: " << eventID 
+                      << ", Track ID: " << trackID 
+                      << ", Hits: " << trackHitsVec.size()
+                      <<",pdg: " << trackHitsVec.front().pdg
+                      << ", Truth Momentum: " << r.truthMomentum 
+                      << " GeV/c, CircleFit Momentum: " << r.circleMomentum
+                      << " GeV/c, Kalman Momentum: " << r.kalmanMomentum 
+                      << " GeV/c, Genfit Momentum: " << r.genfitMomentum 
+                      << " GeV/c, Kalman Chi2: " << r.kalmanChi2 
+                      << ", Genfit Chi2: " << r.genfitChi2 
+                      << ", Genfit Charge: " << r.genfitCharge 
+                      << std::endl;
+        }   
+
+}
+
+void TrackAnalysis::RunKalmanFilter(const std::vector<Hit>& hits) {
+
+    const int nStates = 5; // x, y, z, tx, ty
+    const int nMeas = 3;   // x, y, z measurements
+    
+    TMatrixD state(nStates, 1);
+
+    //TMatrixD cov(nStates, nStates);
+    TMatrixDSym cov(nStates);
+    state(0,0) = hits[0].position.X();
+    state(1,0) = hits[0].position.Y();
+    state(2,0) = hits[0].position.Z();
+    state(3,0) = 0; // tx
+    state(4,0) = 0; // ty
+    cov.Zero();
+    cov(0,0) = cov(1,1) = cov(2,2) = 0.01; // position variance
+    cov(3,3) = cov(4,4) = 1e-4;            // slopes variance
+
+    double chi2 = 0;
+    int nUpdates = 0;
+
+    for (size_t i = 1; i < hits.size(); ++i) {
+        // Prediction
+        double dz = hits[i].position.Z() - state(2,0);
+        state(0,0) += dz * state(3,0); // x += dz*tx
+        state(1,0) += dz * state(4,0); // y += dz*ty
+        state(2,0) = hits[i].position.Z();
+
+        // Measurement matrix H (3x5)
+        TMatrixD H(nMeas, nStates);
+        H.Zero();
+        H(0,0) = H(1,1) = H(2,2) = 1.0; // maps states to measurement x, y, z
+        
+        TVectorD meas(nMeas);
+        meas(0) = hits[i].position.X();
+        meas(1) = hits[i].position.Y();
+        meas(2) = hits[i].position.Z();
+        
+        // Calculate H * state first
+        TVectorD Hstate(nMeas);
+        //Hstate = H * state;
+        for (int m = 0; m < nMeas; m++) {
+            Hstate(m) = 0;
+            for (int s = 0; s < nStates; s++) {
+                Hstate(m) += H(m,s) * state(s,0);
+            }
+        }
+        // Calculate residual
+        TVectorD residual = meas - Hstate; // residual = meas - H * state
+
+        // Measurement covariance (3x3)
+        TMatrixDSym R(nMeas);
+        R.Zero();
+        R(0,0) = R(1,1) = R(2,2) = 0.01; // 1 cm^2 resolution
+        // R is diagonal, so we can use TMatrixDSym for efficiency
+
+        // Innovation covariance S = H * cov * H.T() + R
+        TMatrixD H_T(TMatrixD::kTransposed, H);
+        TMatrixD temp = H * cov;
+        TMatrixD S = temp * H_T;
+        S += R; // Add measurement noise covariance
+
+        if (S.Determinant() == 0) {
+            std::cerr << "Error: S matrix is singular!" << std::endl;
+            continue;
+        }
+        // Invert S using TMatrixD
+        TMatrixD S_inv = S;
+        S_inv.Invert();
+
+         // Then compute residual properly
+        //TVectorD residual(nMeas);
+        //for (int j = 0; j < nMeas; ++j) {
+        //    residual(j) = meas(j) - Hstate(j);
+       // }
+
+        // Kalman gain  K = cov * H.T() * S_inv
+        TMatrixD K = cov * H_T; // (5x5)*(5x3) = (5x3)
+         K *= S_inv; // (5x3)*(3x3) = (5x3)
+        
+        // Update state
+        TVectorD state_update = K * residual;  // K (5x3) * residual (3x1) → (5x1) vector
+        for (int j = 0; j < nStates; ++j) {
+            state(j, 0) += state_update(j);    // Update state using vector indexing
+        }
+
+        // Update covariance - Joseph form for numerical stability
+        TMatrixD I(TMatrixD::kUnit, cov); // Identity matrix (5x5)
+        TMatrixD KH = K * H;              // (5x3)*(3x5) → (5x5)
+        TMatrixD IminusKH = I - KH;       // (5x5) - (5x5) → (5x5)
+
+        // First term: IminusKH * cov * IminusKH^T
+        TMatrixD tempCov = IminusKH * cov;
+        TMatrixD IminusKH_T(TMatrixD::kTransposed, IminusKH);
+        TMatrixD cov1 = tempCov * IminusKH_T;  // (5x5)*(5x5) → (5x5)
+        
+        // Second term: K * R * K^T
+        TMatrixD tempKR = K * R;               // (5x3)*(3x3) → (5x3)
+        TMatrixD K_T(TMatrixD::kTransposed, K); // (3x5)
+        TMatrixD cov2 = tempKR * K_T;          // (5x3)*(3x5) → (5x5)
+
+        // Final covariance update
+       for (int ii = 0; ii < nStates; ++ii) {
+            for (int jj = 0; jj < nStates; ++jj) {
+                cov(ii, jj) = cov1(ii, jj) + cov2(ii, jj);
+            }
+        }
+        int DEBUG = 0; // Set to 1 to enable debug output
+        // Debug output
+        if (DEBUG) {
+            std::cout << "[DEBUG] Kalman update for hit " << i << std::endl;
+            std::cout << "H: " << H.GetNrows() << "x" << H.GetNcols() << std::endl;
+            std::cout << "R: " << R.GetNrows() << "x" << R.GetNcols() << std::endl;
+            std::cout << "S: " << S.GetNrows() << "x" << S.GetNcols() << std::endl;
+            std::cout << "S_inv: " << S_inv.GetNrows() << "x" << S_inv.GetNcols() << std::endl;
+            //std::cout << "residual: " << residual.GetNrows() << std::endl;
+            std::cout << "K: " << K.GetNrows() << "x" << K.GetNcols() << std::endl;
+            std::cout << "KH:  " << KH.GetNrows() << "x" << KH.GetNcols() << std::endl;
+            std::cout << "cov: " << cov.GetNrows() << "x" << cov.GetNcols() << std::endl;
+        }
+        // Chi2 calculation (equivalent to residual^T * S_inv * residual)
+        double chi2Cont = 0.0;
+        for (int i = 0; i < nMeas; ++i) {
+            for (int j = 0; j < nMeas; ++j) {
+                chi2Cont += residual(i) * S_inv(i, j) * residual(j);
+            }
+        }
+        chi2 += chi2Cont;
+        nUpdates++;
+    }
+
+    results_.back().kalmanMomentum = CalculateSagittaMomentum(hits);
+    results_.back().kalmanChi2 = (nUpdates > 0) ? chi2/nUpdates : 9999;
+
+}
+/*
+void TrackAnalysis::RunGenfit(const std::vector<Hit>& hits) {
+    genfit::Track* track = new genfit::Track(trackRep_, 
+                                           hits[0].position, 
+                                           TVector3(0,0,10)); // Seed with 10 GeV
+
+    // Create measurements
+    for (const auto& hit : hits) {
+        TVectorD hitCoords(3); // considering we have x,y,z positions
+        hitCoords(0) = hit.position.X();
+        hitCoords(1) = hit.position.Y();
+        hitCoords(2) = hit.position.Z();
+
+        TMatrixDSym hitCov(3);
+        hitCov(0,0) = hitCov(1,1) = hitCov(2,2) = 0.01; // 100 μm resolution
+        hitCov(0,1) = hitCov(0,2) = hitCov(1,0) = hitCov(1,2) = hitCov(2,0) = hitCov(2,1) = 0.0;
+
+        std::cout << "[DEBUG] hitCoords size: " << hitCoords.GetNrows() 
+          << ", hitCov size: " << hitCov.GetNrows() << "x" << hitCov.GetNcols() << std::endl;
+        
+          for (int i = 0; i < hitCoords.GetNrows(); ++i)
+            std::cout << "  hitCoords[" << i << "] = " << hitCoords[i] << std::endl;
+
+
+        genfit::SpacepointMeasurement* meas = new genfit::SpacepointMeasurement(
+            hitCoords, hitCov, hit.stationID, hit.layerID,nullptr);
+        track->insertMeasurement(meas);
+    }
+
+    // Fit with DAF
+    genfit::DAF daf;
+    try {
+        daf.processTrack(track);
+        
+        //const genfit::MeasuredStateOnPlane& mop = track->getFittedState(0, trackRep_);
+        //track->getFittedState(mop, 0, trackRep_);
+       // For the first error:
+        genfit::MeasuredStateOnPlane mop;
+        // Correct way to get the fitted state is to assign the return value:
+        mop = track->getFittedState(); // Use default arguments (id=0)
+
+        // For the fitStatus errors:
+    const genfit::FitStatus* fitStatus = track->getFitStatus();
+    if (fitStatus) {
+        results_.back().genfitChi2 = fitStatus->getChi2() / fitStatus->getNdf();
+    }
+    else {
+            results_.back().genfitChi2 = 9999;
+        }
+    } catch (...) {
+        results_.back().genfitMomentum = 0;
+        results_.back().genfitChi2 = 9999;
+    }
+
+    delete track;
+}
+*/
+void TrackAnalysis::RunGenfit(const std::vector<Hit>& hits) {
+    if (hits.size() < 4) { results_.back().genfitMomentum = 0; results_.back().genfitChi2 = 9999; return; }
+
+    // Prepare the seed state and covariance:
+    TVectorD stateSeed(6);
+    stateSeed[0] = hits[0].position.X();
+    stateSeed[1] = hits[0].position.Y();
+    stateSeed[2] = hits[0].position.Z();
+    stateSeed[3] = 0;//hits[0].momentum.X();
+    stateSeed[4] = 0;//hits[0].momentum.Y();
+    stateSeed[5] = 10.;//hits[0].momentum.Z();
+
+    TMatrixDSym covSeed(6);
+    covSeed.UnitMatrix();    // Or set diagonal values to reasonable variances (e.g., 1 mm² and 1 (GeV/c)²)
+    covSeed(0,0) = covSeed(1,1) = covSeed(2,2) = 0.01; // mm²
+    covSeed(3,3) = covSeed(4,4) = covSeed(5,5) = 1.0;  // (MeV/c)²
+
+    // Results for both charges
+    double chi2_minus = 1e9, chi2_plus = 1e9;
+    double p_minus = 0, p_plus = 0;
+
+    // Fit as mu- (PDG=13, charge -1)
+    {
+        genfit::RKTrackRep* rep = new genfit::RKTrackRep(13);
+        genfit::Track* track = new genfit::Track(rep, stateSeed, covSeed);
+        // Measurements
+        for (const auto& hit : hits) {
+            TVectorD hitCoords(3);
+            hitCoords(0) = hit.position.X();
+            hitCoords(1) = hit.position.Y();
+            hitCoords(2) = hit.position.Z();
+            TMatrixDSym hitCov(3); hitCov.UnitMatrix(); hitCov *= 0.01;
+            //std::cout << "[DEBUG] hitCoords size: " << hitCoords.GetNrows() 
+            //          << ", hitCov size: " << hitCov.GetNrows() << "x" << hitCov.GetNcols() << std::endl;
+            //for (int i = 0; i < hitCoords.GetNrows(); ++i)
+            //    std::cout << "  hitCoords[" << i << "] = " << hitCoords[i] << std::endl;
+            track->insertMeasurement(new genfit::SpacepointMeasurement(hitCoords, hitCov, hit.stationID, hit.layerID, nullptr));
+        }
+        genfit::DAF daf;
+        try {
+            daf.processTrack(track);
+            const genfit::FitStatus* fitStatus = track->getFitStatus(rep);
+            if (fitStatus) {
+                chi2_minus = fitStatus->getChi2() / fitStatus->getNdf();
+                //genfit::MeasuredStateOnPlane mop = track->getFittedState(rep);
+                genfit::MeasuredStateOnPlane mop = track->getFittedState();
+                p_minus = mop.getMom().Mag() / 1000.; // GeV
+            }
+        } catch (...) { chi2_minus = 1e9; }
+        delete rep;
+    }
+    // Fit as mu+ (PDG=-13, charge +1)
+    {
+        genfit::RKTrackRep* rep = new genfit::RKTrackRep(-13);
+        genfit::Track* track = new genfit::Track(rep, stateSeed, covSeed);
+        for (const auto& hit : hits) {
+            TVectorD hitCoords(3);
+            hitCoords(0) = hit.position.X();
+            hitCoords(1) = hit.position.Y();
+            hitCoords(2) = hit.position.Z();
+            TMatrixDSym hitCov(3); hitCov.UnitMatrix(); hitCov *= 0.01;
+            track->insertMeasurement(new genfit::SpacepointMeasurement(hitCoords, hitCov, hit.stationID, hit.layerID, nullptr));
+        }
+        genfit::DAF daf;
+        /*try {
+            daf.processTrack(track);
+            const genfit::FitStatus* fitStatus = track->getFitStatus(rep);
+            if (fitStatus) {
+                chi2_plus = fitStatus->getChi2() / fitStatus->getNdf();
+                //genfit::MeasuredStateOnPlane mop = track->getFittedState(rep);
+                genfit::MeasuredStateOnPlane mop = track->getFittedState();
+                p_plus = mop.getMom().Mag() / 1000.; // GeV
+            }
+        } catch (...) { chi2_plus = 1e9; }
+        */
+        try {
+            daf.processTrack(track);
+            const genfit::FitStatus* fitStatus = track->getFitStatus(rep);
+            if (fitStatus) {
+                std::cout << "[GENFIT] converged: " << fitStatus->isFitConverged()
+                        << ", chi2: " << fitStatus->getChi2() 
+                        << ", ndf: " << fitStatus->getNdf() << std::endl;
+                if (fitStatus->isFitConverged()) {
+                    genfit::MeasuredStateOnPlane mop = track->getFittedState();
+                    p_minus = mop.getMom().Mag() / 1000.; // GeV
+                }
+            } else {
+                std::cout << "[GENFIT] No fit status for this track!" << std::endl;
+            }
+        } catch (std::exception& e) {
+            std::cout << "[GENFIT] Exception during fit: " << e.what() << std::endl;
+        }
+        delete rep;
+    }
+
+    // Store results
+    results_.back().genfitChi2_minus = chi2_minus;
+    results_.back().genfitChi2_plus = chi2_plus;
+
+    if (chi2_minus < chi2_plus) {
+        results_.back().genfitMomentum = p_minus;
+        results_.back().genfitChi2 = chi2_minus;
+        results_.back().genfitCharge = -1;
+    } else {
+        results_.back().genfitMomentum = p_plus;
+        results_.back().genfitChi2 = chi2_plus;
+        results_.back().genfitCharge = +1;
+    }
+}
+
+double TrackAnalysis::CalculateSagittaMomentum(const std::vector<Hit>& hits) {
+    if (hits.size() < 3) return 0;
+
+    const TVector3& p0 = hits[0].position;
+    const TVector3& p1 = hits[hits.size()/2].position;
+    const TVector3& p2 = hits.back().position;
+
+    // Convert mm to meters!
+    double L = (p2.Z() - p0.Z()) * 0.001;  // mm to m
+    double sagitta = (p1.X() - 0.5*(p0.X() + p2.X())) * 0.001; // mm to m
+    double B = 1.5; // Tesla
+
+    // Formula: p = 0.3 * B * L^2 / (8 * sagitta)
+    return 0.3 * B * L * L / (8. * std::abs(sagitta)); // GeV/c
+}
+
+
+void TrackAnalysis::FitStationTracklets(const std::vector<Hit>& hits) {
+    // Group hits by stationID 
+    //std::map<int, std::vector<const Hit*>> stationHits;
+    //for (const auto& hit : hits) {
+    //    stationHits[hit.stationID].push_back(&hit);
+    //}
+    // group hits by stationID and trackID
+    std::map<std::pair<int, int>, std::vector<const Hit*>> tracklets;
+    for (const auto& hit : hits) {
+        tracklets[{hit.stationID, hit.trackID}].push_back(&hit);
+    }
+
+    std::cout << "---- Station-by-station Tracklet Fits ----" << std::endl;
+    for (const auto& entry : tracklets) {
+        int station = entry.first.first;
+        int trackID = entry.first.second; // Assuming trackID is part of the key
+        std::cout << "Processing tracklet for station " << station 
+                  << " with trackID " << trackID << std::endl;
+
+        const auto& hitvec = entry.second;
+        if (hitvec.size() < 2) continue; // Need at least two hits for a fit
+
+        // Prepare sums for linear fit: x(z) and y(z)
+        double sumZ = 0, sumZZ = 0, sumX = 0, sumY = 0, sumXZ = 0, sumYZ = 0;
+        for (const auto* hit : hitvec) {
+            double x = hit->position.X();
+            double y = hit->position.Y();
+            double z = hit->position.Z();
+            sumZ  += z;
+            sumZZ += z*z;
+            sumX  += x;
+            sumY  += y;
+            sumXZ += x*z;
+            sumYZ += y*z;
+        }
+        double N = hitvec.size();
+        double denom = N * sumZZ - sumZ * sumZ;
+        if (std::abs(denom) < 1e-12) continue; // avoid division by zero
+
+        double slopeX = (N * sumXZ - sumZ * sumX) / denom;
+        double interceptX = (sumX - slopeX * sumZ) / N;
+        double slopeY = (N * sumYZ - sumZ * sumY) / denom;
+        double interceptY = (sumY - slopeY * sumZ) / N;
+
+        // The direction vector (not necessarily a unit vector)
+        TVector3 dir(slopeX, slopeY, 1.0);
+        dir = dir.Unit();
+
+        std::cout << "Station " << station << ", GEANT trackID " << trackID
+                  << " (Nhits=" << N << "): "
+                  << " slopeX=" << slopeX
+                  << ", slopeY=" << slopeY
+                  << ", direction=(" << dir.X() << ", " << dir.Y() << ", " << dir.Z() << ")" << std::endl;
+
+        // print all hits in this station
+        for (size_t i = 0; i < hitvec.size(); ++i) {
+            const Hit* hit = hitvec[i];
+            std::cout << "    all hits in given station " << i
+                      << " trackID=" << hit->trackID
+                      << ", pdg=" << hit->pdg
+                      << ": layer=" << hit->layerID 
+                      << ", (" << hit->position.X() 
+                      << ", " << hit->position.Y() 
+                      << ", " << hit->position.Z() << ")" 
+                      << std::endl;
+        }
+    }
+}
+
+
+// Circle fit in (y, z) plane for Bx field
+// Returns the momentum in GeV/c
+double TrackAnalysis::CircleFitMomentum_Bx(const std::vector<Hit>& hits, double bx_tesla) {
+    if (hits.size() < 3) return 0;
+    int N = hits.size();
+    double mean_z = 0, mean_y = 0;
+    for (const auto& h : hits) { mean_z += h.position.Z(); mean_y += h.position.Y(); }
+    mean_z /= N; mean_y /= N;
+
+    double Suu=0, Suv=0, Svv=0, Suuu=0, Svvv=0, Suuv=0, Suvv=0;
+    for (const auto& h : hits) {
+        double u = h.position.Z() - mean_z;
+        double v = h.position.Y() - mean_y;
+        Suu += u*u;   Svv += v*v;   Suv += u*v;
+        Suuu += u*u*u; Svvv += v*v*v;
+        Suuv += u*u*v; Suvv += u*v*v;
+    }
+    double A = Suu;
+    double B = Suv;
+    double C = Svv;
+    double D = 0.5*(Suuu + Suvv);
+    double E = 0.5*(Svvv + Suuv);
+    double denom = (A*C - B*B);
+    if (std::abs(denom) < 1e-12) return 0;
+    double uc = (D*C - B*E) / denom;
+    double vc = (A*E - B*D) / denom;
+    double center_z = uc + mean_z;
+    double center_y = vc + mean_y;
+
+    double radius = 0;
+    for (const auto& h : hits) {
+        double dz = h.position.Z() - center_z;
+        double dy = h.position.Y() - center_y;
+        radius += std::sqrt(dz*dz + dy*dy);
+    }
+    radius /= N; // mean
+    radius /= 1000.0; // mm→m
+
+    return 0.3 * std::abs(bx_tesla) * radius; // GeV/c
+}
+
+
+
+
+
+///////////////////////////////////////////////
+
+
+void TrackAnalysis::WriteResults(const char* filename) {
+    TFile outfile(filename, "RECREATE");
+    TTree tree("results", "Reconstruction Results");
+
+    double truth, circleMomentum,kalman, genfit, chi2_kf, chi2_gf;
+    double charge, chi2_m, chi2_p;
+
+    tree.Branch("truth", &truth, "truth/D");
+    tree.Branch("circle", &circleMomentum, "circle/D");
+    tree.Branch("kalman", &kalman, "kalman/D");
+    tree.Branch("genfit", &genfit, "genfit/D");
+    tree.Branch("chi2_kf", &chi2_kf, "chi2_kf/D");
+    tree.Branch("chi2_gf", &chi2_gf, "chi2_gf/D");
+    tree.Branch("charge", &charge, "charge/D");
+    tree.Branch("chi2_minus", &chi2_m, "chi2_minus/D");
+    tree.Branch("chi2_plus", &chi2_p, "chi2_plus/D");
+    
+    for (const auto& r : results_) {
+        truth = r.truthMomentum;
+        kalman = r.kalmanMomentum;
+        genfit = r.genfitMomentum;
+        chi2_kf = r.kalmanChi2;
+        chi2_gf = r.genfitChi2;
+        charge = r.genfitCharge;
+        chi2_m = r.genfitChi2_minus;
+        chi2_p = r.genfitChi2_plus;
+        tree.Fill();
+    }
+
+    tree.Write();
+    outfile.Close();
+}
+
+
+void TrackAnalysis::PrintOut(const std::vector<Hit> &hits)
+{
+   std::cout << "Processing event with hits: " << std::endl;
+    for (size_t i = 0; i < hits.size(); ++i) 
+    {
+        std::cout << i << " "
+          << hits[i].stationID << " "
+          << hits[i].layerID << " " 
+          << hits[i].position.X() << " " 
+          << hits[i].position.Y() << " " 
+          << hits[i].position.Z() << " " 
+          << hits[i].momentum.X() << " " 
+          << hits[i].momentum.Y() << " " 
+          << hits[i].momentum.Z() << " " 
+          << std::endl;
+    } 
+}
+
+
+void TrackAnalysis::PrintStationFits(const std::vector<Hit>& hits) {
+    // Group hits by stationID
+    std::map<int, std::vector<TVector3>> stationHits;
+    for (const auto& hit : hits) {
+        stationHits[hit.stationID].push_back(hit.position);
+    }
+
+    std::cout << "---- Station Line Fits ----" << std::endl;
+    for (const auto& entry : stationHits) {
+        int station = entry.first;
+        const auto& vecs = entry.second;
+        if (vecs.size() < 2) continue; // Need at least 2 points
+
+        // Linear fit: x = a + b*z, y = c + d*z
+        double sumZ = 0, sumX = 0, sumY = 0, sumZZ = 0, sumXZ = 0, sumYZ = 0;
+        for (const auto& pos : vecs) {
+            double x = pos.X(), y = pos.Y(), z = pos.Z();
+            sumZ  += z;
+            sumX  += x;
+            sumY  += y;
+            sumZZ += z * z;
+            sumXZ += x * z;
+            sumYZ += y * z;
+        }
+        double N = vecs.size();
+        double denom = N * sumZZ - sumZ * sumZ;
+        double slopeX = (N * sumXZ - sumZ * sumX) / denom;
+        double slopeY = (N * sumYZ - sumZ * sumY) / denom;
+        double interceptX = (sumX - slopeX * sumZ) / N;
+        double interceptY = (sumY - slopeY * sumZ) / N;
+
+        // Direction vector (dx/dz, dy/dz, 1)
+        TVector3 dir(slopeX, slopeY, 1.0);
+        dir = dir.Unit(); // Normalize
+
+        std::cout << "Station " << station
+                  << ": direction = (" << dir.X() << ", " << dir.Y() << ", " << dir.Z() << ")" << std::endl;
+
+        // (Optional) Print points used in fit
+        for (size_t i = 0; i < vecs.size(); ++i) {
+            std::cout << "    hit " << i << ": ("
+                      << vecs[i].X() << ", " << vecs[i].Y() << ", " << vecs[i].Z() << ")" << std::endl;
+        }
+    }
+}
+
+
+

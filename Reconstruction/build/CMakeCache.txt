@@ -146,7 +146,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=TrackReconstruction
+CMAKE_PROJECT_NAME:STATIC=MuonTrackingAnalysis
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib
@@ -213,122 +213,131 @@ CMAKE_TAPI:FILEPATH=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeD
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//Value Computed by CMake
+MuonTrackingAnalysis_BINARY_DIR:STATIC=/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/Reconstruction/build
+
+//Value Computed by CMake
+MuonTrackingAnalysis_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+MuonTrackingAnalysis_SOURCE_DIR:STATIC=/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/Reconstruction
+
 //Path to a library.
-ROOT_Core_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libCore.so
+ROOT_Core_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libCore.so
 
 //The directory containing a CMake configuration file for ROOT.
-ROOT_DIR:PATH=/opt/homebrew/share/root/cmake
+ROOT_DIR:PATH=/Users/ukose/sw/kits/root-install/cmake
 
 //Path to a library.
-ROOT_Gpad_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libGpad.so
+ROOT_Gdml_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libGdml.so
 
 //Path to a library.
-ROOT_Graf3d_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libGraf3d.so
+ROOT_Geom_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libGeom.so
 
 //Path to a library.
-ROOT_Graf_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libGraf.so
+ROOT_Gpad_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libGpad.so
 
 //Path to a library.
-ROOT_Gui_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libGui.so
+ROOT_Graf3d_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libGraf3d.so
 
 //Path to a library.
-ROOT_Hist_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libHist.so
+ROOT_Graf_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libGraf.so
 
 //Path to a library.
-ROOT_Imt_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libImt.so
+ROOT_Hist_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libHist.so
 
 //Path to a library.
-ROOT_MathCore_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libMathCore.so
+ROOT_Imt_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libImt.so
 
 //Path to a library.
-ROOT_Matrix_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libMatrix.so
+ROOT_MathCore_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libMathCore.so
 
 //Path to a library.
-ROOT_MultiProc_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libMultiProc.so
+ROOT_Matrix_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libMatrix.so
 
 //Path to a library.
-ROOT_Net_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libNet.so
+ROOT_Minuit2_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libMinuit2.so
 
 //Path to a library.
-ROOT_Physics_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libPhysics.so
+ROOT_MultiProc_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libMultiProc.so
 
 //Path to a library.
-ROOT_Postscript_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libPostscript.so
+ROOT_Net_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libNet.so
 
 //Path to a library.
-ROOT_RIO_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libRIO.so
+ROOT_Physics_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libPhysics.so
 
 //Path to a library.
-ROOT_ROOTDataFrame_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libROOTDataFrame.so
+ROOT_Postscript_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libPostscript.so
 
 //Path to a library.
-ROOT_ROOTVecOps_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libROOTVecOps.so
+ROOT_RIO_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libRIO.so
 
 //Path to a library.
-ROOT_Rint_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libRint.so
+ROOT_ROOTDataFrame_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libROOTDataFrame.so
 
 //Path to a library.
-ROOT_Thread_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libThread.so
+ROOT_ROOTVecOps_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libROOTVecOps.so
 
 //Path to a library.
-ROOT_TreePlayer_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libTreePlayer.so
+ROOT_Rint_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libRint.so
 
 //Path to a library.
-ROOT_Tree_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libTree.so
+ROOT_Thread_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libThread.so
+
+//Path to a library.
+ROOT_TreePlayer_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libTreePlayer.so
+
+//Path to a library.
+ROOT_Tree_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libTree.so
+
+//Path to a library.
+ROOT_gdml_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libGdml.so
 
 //Path to a program.
 ROOT_genmap_CMD:FILEPATH=ROOT_genmap_CMD-NOTFOUND
 
 //Path to a program.
-ROOT_genreflex_CMD:FILEPATH=/opt/homebrew/bin/genreflex
+ROOT_genreflex_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/genreflex
 
 //Path to a program.
-ROOT_hadd_CMD:FILEPATH=/opt/homebrew/bin/hadd
+ROOT_hadd_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/hadd
 
 //Path to a program.
-ROOT_root_CMD:FILEPATH=/opt/homebrew/bin/root
+ROOT_root_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/root
 
 //Path to a program.
-ROOT_rootbrowse_CMD:FILEPATH=/opt/homebrew/bin/rootbrowse
+ROOT_rootbrowse_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/rootbrowse
 
 //Path to a program.
-ROOT_rootcint_CMD:FILEPATH=/opt/homebrew/bin/rootcint
+ROOT_rootcint_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/rootcint
 
 //Path to a program.
-ROOT_rootcling_CMD:FILEPATH=/opt/homebrew/bin/rootcling
+ROOT_rootcling_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/rootcling
 
 //Path to a program.
-ROOT_rootcp_CMD:FILEPATH=/opt/homebrew/bin/rootcp
+ROOT_rootcp_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/rootcp
 
 //Path to a program.
 ROOT_rootdraw_CMD:FILEPATH=ROOT_rootdraw_CMD-NOTFOUND
 
 //Path to a program.
-ROOT_rootls_CMD:FILEPATH=/opt/homebrew/bin/rootls
+ROOT_rootls_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/rootls
 
 //Path to a program.
-ROOT_rootmkdir_CMD:FILEPATH=/opt/homebrew/bin/rootmkdir
+ROOT_rootmkdir_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/rootmkdir
 
 //Path to a program.
-ROOT_rootmv_CMD:FILEPATH=/opt/homebrew/bin/rootmv
+ROOT_rootmv_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/rootmv
 
 //Path to a program.
-ROOT_rootrm_CMD:FILEPATH=/opt/homebrew/bin/rootrm
-
-//Value Computed by CMake
-TrackReconstruction_BINARY_DIR:STATIC=/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/Reconstruction/build
-
-//Value Computed by CMake
-TrackReconstruction_IS_TOP_LEVEL:STATIC=ON
-
-//Value Computed by CMake
-TrackReconstruction_SOURCE_DIR:STATIC=/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/Reconstruction
+ROOT_rootrm_CMD:FILEPATH=/Users/ukose/sw/kits/root-install/bin/rootrm
 
 //Path to a file.
-VDT_INCLUDE_DIR:PATH=/opt/homebrew/Cellar/root/6.36.00/include/root
+VDT_INCLUDE_DIR:PATH=/Users/ukose/sw/kits/root-install/include
 
 //Path to a library.
-VDT_LIBRARY:FILEPATH=/opt/homebrew/Cellar/root/6.36.00/lib/root/libvdt.dylib
+VDT_LIBRARY:FILEPATH=/Users/ukose/sw/kits/root-install/lib/libvdt.dylib
 
 
 ########################
@@ -475,17 +484,19 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding Vdt
-FIND_PACKAGE_MESSAGE_DETAILS_Vdt:INTERNAL=[/opt/homebrew/Cellar/root/6.36.00/include/root][/opt/homebrew/Cellar/root/6.36.00/lib/root/libvdt.dylib][v0.4()]
+FIND_PACKAGE_MESSAGE_DETAILS_Vdt:INTERNAL=[/Users/ukose/sw/kits/root-install/include][/Users/ukose/sw/kits/root-install/lib/libvdt.dylib][v0.4()]
 //ADVANCED property for variable: ROOT_Core_LIBRARY
 ROOT_Core_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: ROOT_Gdml_LIBRARY
+ROOT_Gdml_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: ROOT_Geom_LIBRARY
+ROOT_Geom_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_Gpad_LIBRARY
 ROOT_Gpad_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_Graf3d_LIBRARY
 ROOT_Graf3d_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_Graf_LIBRARY
 ROOT_Graf_LIBRARY-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: ROOT_Gui_LIBRARY
-ROOT_Gui_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_Hist_LIBRARY
 ROOT_Hist_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_Imt_LIBRARY
@@ -494,6 +505,8 @@ ROOT_Imt_LIBRARY-ADVANCED:INTERNAL=1
 ROOT_MathCore_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_Matrix_LIBRARY
 ROOT_Matrix_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: ROOT_Minuit2_LIBRARY
+ROOT_Minuit2_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_MultiProc_LIBRARY
 ROOT_MultiProc_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_Net_LIBRARY
@@ -516,6 +529,8 @@ ROOT_Thread_LIBRARY-ADVANCED:INTERNAL=1
 ROOT_TreePlayer_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_Tree_LIBRARY
 ROOT_Tree_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: ROOT_gdml_LIBRARY
+ROOT_gdml_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_genreflex_CMD
 ROOT_genreflex_CMD-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: ROOT_hadd_CMD

@@ -22,7 +22,7 @@ private:
   
   std::vector<double> fx, fy, fz;
   std::vector<double> fpx, fpy, fpz;
-  std::vector<int> fpdg, ftrackID, flayerID;
+  std::vector<int> fpdg, ftrackID, flayerID, fstationID;
   int feventID;
 };
 

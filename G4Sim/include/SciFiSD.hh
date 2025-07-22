@@ -16,6 +16,7 @@ struct SciFiHit {
   G4int trackID;
   G4int pdgID;
   G4int eventID;
+  G4int stationID;
   G4int layerID;
 };
 

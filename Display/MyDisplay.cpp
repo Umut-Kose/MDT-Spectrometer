@@ -60,7 +60,7 @@ void MyDisplay::Initialize(const std::string& rootFile, const std::string& gdmlF
   // Load geometry
   LoadGeometry(gdmlFile);
   SetupViewer();
-  AddAxes();
+  //AddAxes();
 
   // Configure viewer
   TGLViewer* glViewer = viewer->GetGLViewer();
@@ -369,7 +369,7 @@ void MyDisplay::DisplayEventHits(int targetEventID)
   std::vector<double>* x = nullptr;
   std::vector<double>* y = nullptr;
   std::vector<double>* z = nullptr;
-  std::vector<int> pdg = nullptr;
+  std::vector<int>* pdg = nullptr;
   Int_t eventID = -1;
   
   fEventTree->SetBranchAddress("x", &x);

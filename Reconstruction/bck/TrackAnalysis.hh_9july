@@ -1,0 +1,88 @@
+#ifndef TRACKANALYSIS_HH
+#define TRACKANALYSIS_HH
+
+#include <vector>
+#include <memory>
+#include "TVector3.h"
+#include "TMatrixD.h"
+#include "TFile.h"
+#include "TTree.h"
+
+// Include complete GENFIT headers
+#include <AbsBField.h>
+#include <RKTrackRep.h>
+#include <FieldManager.h>
+#include <Track.h>
+#include <MeasuredStateOnPlane.h>
+#include <PlanarMeasurement.h>
+
+class TrackAnalysis {
+public:
+    struct Hit {
+        int stationID;
+        int layerID;
+        int trackID; // GEANT track ID
+        int pdg; // PDG code of the particle
+        TVector3 position; // mm
+        TVector3 momentum; // MeV/c
+    };
+
+    struct Result {
+        double truthMomentum;
+        double circleMomentum;
+        double kalmanMomentum;
+        double genfitMomentum;
+        double kalmanChi2;
+        double genfitChi2;
+        int genfitCharge;         // +1 or -1
+        double genfitChi2_plus;   // χ² for mu+
+        double genfitChi2_minus;  // χ² for mu-
+    };
+
+    TrackAnalysis();
+    ~TrackAnalysis();
+
+    void ProcessFile(const char* filename);
+    void WriteResults(const char* filename);
+
+private:
+    class MagneticField : public genfit::AbsBField {
+    public:
+        TVector3 get(const TVector3& position) const override {
+            double y = position.Y();
+            if (std::abs(y) >= 250 && std::abs(y) <= 500) return TVector3(1.5, 0, 0);
+            if (std::abs(y) < 250) return TVector3(-1.5, 0, 0);
+            return TVector3(0, 0, 0);
+        }
+        
+        genfit::AbsBField* clone() const { 
+            return new MagneticField(*this); 
+        }
+    };
+
+    void ProcessEvent(int eventID, 
+                        const std::vector<int>& trackID,
+                        const std::vector<double>& x,
+                        const std::vector<double>& y,
+                        const std::vector<double>& z,
+                        const std::vector<double>& px,
+                        const std::vector<double>& py,
+                        const std::vector<double>& pz,
+                        const std::vector<int>& layerID,
+                        const std::vector<int>& stationID,
+                        const std::vector<int>& pdg);
+
+    void RunKalmanFilter(const std::vector<Hit>& hits);
+    void RunGenfit(const std::vector<Hit>& hits);
+    double CalculateSagittaMomentum(const std::vector<Hit>& hits);
+    void PrintOut(const std::vector<Hit>& hits);
+    void PrintStationFits(const std::vector<Hit>& hits);
+    void FitStationTracklets(const std::vector<Hit>& hits);
+    double CircleFitMomentum_Bx(const std::vector<Hit>& hits, double bx_tesla);
+
+    std::vector<Result> results_;
+    genfit::AbsTrackRep* trackRep_;
+    MagneticField* magneticField_;
+};
+
+#endif

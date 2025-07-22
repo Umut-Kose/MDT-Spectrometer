@@ -150,7 +150,7 @@ nullptr
     };
     static const char* includePaths[] = {
 "/Users/ukose/sw/kits/root-install/include/",
-"/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/Analysis/Display/",
+"/Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/Display/",
 nullptr
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(

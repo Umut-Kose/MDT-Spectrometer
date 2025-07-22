@@ -14,6 +14,7 @@ EventAction::EventAction() : G4UserEventAction() {
   fTree->Branch("eventID", &feventID);
   fTree->Branch("trackID", &ftrackID);
   fTree->Branch("pdg", &fpdg);
+  fTree->Branch("stationID", &fstationID);
   fTree->Branch("layerID", &flayerID);
   fTree->Branch("x", &fx);
   fTree->Branch("y", &fy);
@@ -33,7 +34,7 @@ void EventAction::BeginOfEventAction(const G4Event* evt) {
   // reset per-event data
   fx.clear(); fy.clear(); fz.clear();
   fpx.clear(); fpy.clear(); fpz.clear();
-  fpdg.clear(); ftrackID.clear(); flayerID.clear();
+  fpdg.clear(); ftrackID.clear(); fstationID.clear(); flayerID.clear();
   feventID = evt->GetEventID();
 }
 
@@ -50,11 +51,13 @@ void EventAction::EndOfEventAction(const G4Event* evt) {
     fz.push_back(hit.smearedPos.z());
     fpx.push_back(hit.trueMomentum.x());
     fpy.push_back(hit.trueMomentum.y());
-    fpz.push_back(hit.trueMomentum.z());
+    fpz.push_back(hit.trueMomentum.z()); 
     fpdg.push_back(hit.pdgID);
     ftrackID.push_back(hit.trackID);
     feventID = evt->GetEventID();
     flayerID.push_back(hit.layerID);
+    fstationID.push_back(hit.stationID);
+
   }
   fTree->Fill();
   scifiSD->ClearHits();

@@ -24,164 +24,160 @@
 DetectorConstruction::DetectorConstruction() {}
 DetectorConstruction::~DetectorConstruction() {}
 
-G4VPhysicalVolume* DetectorConstruction::Construct() {
-    auto nist = G4NistManager::Instance();
-    G4Material* air = nist->FindOrBuildMaterial("G4_AIR");
-    G4Material* steel = nist->FindOrBuildMaterial("G4_Fe");
-    G4Material* plastic = nist->FindOrBuildMaterial("G4_POLYSTYRENE");
-    G4Material* aluminum = nist->FindOrBuildMaterial("G4_Al");
+// Geometry construction
+// 4layers_SciFi + 10modules( 150mm_Magnet + 40mm_AirGap)
 
-    G4double worldZ = 1500. * mm;
-    G4Box* worldBox = new G4Box("World", 1.2*m, 1.2*m, worldZ/2);
-    G4LogicalVolume* worldLV = new G4LogicalVolume(worldBox, air, "WorldLV");
-    G4VPhysicalVolume* worldPV = new G4PVPlacement(nullptr, {}, worldLV, "World", nullptr, false, 0);
 
-    G4double magnetThickness = 50.*mm;
-    G4double scifilayerThickness = 2.5 * mm;
-    G4double scifiThickness = 4*scifilayerThickness;
+G4VPhysicalVolume* DetectorConstruction::Construct()
+{
+  auto nist = G4NistManager::Instance();
+  G4Material* air = nist->FindOrBuildMaterial("G4_AIR");
+  G4Material* steel = nist->FindOrBuildMaterial("G4_Fe");
+  G4Material* plastic = nist->FindOrBuildMaterial("G4_POLYSTYRENE");
+  G4Material* aluminum = nist->FindOrBuildMaterial("G4_Al");
 
-    G4double airGap = 200.*mm;
-    G4double moduleLength = magnetThickness + scifiThickness + airGap;
+  G4double worldZ = 2000. * mm;
+  G4Box* worldBox = new G4Box("World", 1.3*m, 1.3*m, worldZ/2);
+  G4LogicalVolume* worldLV = new G4LogicalVolume(worldBox, air, "WorldLV");
+  G4VPhysicalVolume* worldPV = new G4PVPlacement(nullptr, {}, worldLV, "World", nullptr, false, 0);
 
-    for (int i = 0; i < 5; ++i) {
-        G4double zOffset = -worldZ/2 + moduleLength/2 + i * moduleLength;
+  // Parameters
+  const int nMagnets = 10;
+  const int nSciFiGroups = nMagnets + 1;
+  const int nSciFiPerGroup = 4;
+  const int nSciFiPlanes = nSciFiGroups * nSciFiPerGroup;
+  G4double scifilayerThickness = 2.5 * mm;
+  G4double magnetThickness = 150. * mm; // Thickness of each magnet changed from 100 to 150
+  G4double gapBeforeMagnet = 10. * mm;
+  G4double gapAfterMagnet = 10. * mm;
 
-        // --- Steel Magnet with Horizontal Slits ---
-        G4Box* solidMagnet = new G4Box("Magnet", 500.*mm, 500.*mm, magnetThickness/2);
-        G4Box* slitBox = new G4Box("Slit", 250.*mm, 10.*mm, magnetThickness/2);
+  // Calculate total length needed
+  G4double totalSciFiThickness = nSciFiPlanes * scifilayerThickness;
+  G4double totalMagnetThickness = nMagnets * magnetThickness;
+  G4double totalGapBefore = nMagnets * gapBeforeMagnet;
+  G4double totalGapAfter = nMagnets * gapAfterMagnet;
+  G4double totalLength = totalSciFiThickness + totalMagnetThickness + totalGapBefore + totalGapAfter;
 
-        G4SubtractionSolid* magnetMinusSlit1 = new G4SubtractionSolid(
-            "MagnetMinusSlit1", solidMagnet, slitBox, nullptr, G4ThreeVector(0, 250.*mm, 0));
+  // Center everything in the world volume
+  G4double zStart = -totalLength/2;
 
-	G4SubtractionSolid* magnetWithSlits = new G4SubtractionSolid(
-            "MagnetWithSlits", magnetMinusSlit1, slitBox, nullptr, G4ThreeVector(0, -250.*mm, 0));
+  // Register SciFi as sensitive
+  G4SDManager* sdManager = G4SDManager::GetSDMpointer();
+  static SciFiSD* scifiSD = new SciFiSD("SciFiSD");
+  sdManager->AddNewDetector(scifiSD);
 
-        G4LogicalVolume* magnetLV = new G4LogicalVolume(magnetWithSlits, steel, "MagnetLV");
-        new G4PVPlacement(nullptr, G4ThreeVector(0, 0, zOffset), magnetLV, "Magnet", worldLV, false, i);
-        //G4LogicalVolume* magnetLV = new G4LogicalVolume(magnetMinusSlit1, steel, "MagnetLV");
-        //new G4PVPlacement(nullptr, G4ThreeVector(0, 0, zOffset), magnetLV, "Magnet", worldLV, false, i);
+  int scifiLayerID = 0;
+  G4double zPos = zStart + scifilayerThickness/2;
 
-	// Magnetic field on the magnet volume
-	auto field = new MagneticField();
-        auto fieldManager = new G4FieldManager(field);
-        fieldManager->CreateChordFinder(field);
-        magnetLV->SetFieldManager(fieldManager, true);
-	
-	// Umut: Global field manager for visualization
-	//G4TransportationManager::GetTransportationManager()->SetFieldManager(fieldManager);
+  for (int group = 0; group < nSciFiGroups; ++group) {
+    // Place 4 SciFi layers
+    for (int l = 0; l < nSciFiPerGroup; ++l) {
+      G4Box* scifiBox = new G4Box("SciFiLayer", 500.*mm, 500.*mm, scifilayerThickness / 2);
+      G4LogicalVolume* scifiLV = new G4LogicalVolume(scifiBox, plastic, "SciFiLayerLV");
+      G4String physName = "SciFiLayer_" + std::to_string(scifiLayerID);
+      new G4PVPlacement(nullptr, G4ThreeVector(0, 0, zPos), scifiLV, physName, worldLV, false, scifiLayerID);
 
-	// --- Top-side Aluminum Strips (6 total) ---
-	int nTopStrips = 11;
-	G4double stripWidth = 25.*mm;      // Half of 50 mm
-	G4double stripHalfLength = 125.*mm; // 25cm long strip along Y
-	G4double stripThickness = 2.*mm;   // Half of 4 mm
-	
-	for (int j = 0; j < nTopStrips; ++j) {
-	  G4bool placeFront = (j % 2 == 0);  // Alternate: even = front, odd = back
-	  
-	  G4double xOffset = -250.*mm + j * 50.*mm;
-	  G4double yOffset = 375.*mm;
-	  // Create strip solid and logical volume
-	  G4Box* aluStripSolid = new G4Box("AluStrip", stripWidth, stripHalfLength, stripThickness);
-	  G4LogicalVolume* aluStripLV = new G4LogicalVolume(aluStripSolid, aluminum, "AluStripLV");
-	  
-	  // Color it
-	  auto aluVis = new G4VisAttributes(G4Colour(0.8, 0.6, 0.4)); // Copper tone
-	  aluVis->SetForceSolid(true);
-	  aluStripLV->SetVisAttributes(aluVis);
-	  
-	  // Z position relative to magnet surface
-	  G4double zPlacement = zOffset + (placeFront ? -magnetThickness/2 - 2.*mm : magnetThickness/2 + 2.*mm);
-	  
-	  // Place strip in world
-	  G4ThreeVector pos(xOffset, yOffset , zPlacement);
-	  new G4PVPlacement(nullptr, pos, aluStripLV, "AluStrip", worldLV, false, i * 1000 + j);
-	}
-	
-	// --- TBottom-side Aluminum Strips (6 total) ---
-	for (int j = 0; j < nTopStrips; ++j) {
-	  G4bool placeFront = (j % 2 == 0);  // Alternate: even = front, odd = back
-	  
-	  G4double xOffset = -250.*mm + j * 50.*mm;
-	  G4double yOffset = -375.*mm;
-	  // Create strip solid and logical volume
-	  G4Box* aluStripSolid = new G4Box("AluStrip", stripWidth, stripHalfLength, stripThickness);
-	  G4LogicalVolume* aluStripLV = new G4LogicalVolume(aluStripSolid, aluminum, "AluStripLV");
-	  
-	  // Color it
-	  auto aluVis = new G4VisAttributes(G4Colour(0.8, 0.6, 0.4)); // Copper tone
-	  aluVis->SetForceSolid(true);
-	  aluStripLV->SetVisAttributes(aluVis);
-	  
-	  // Z position relative to magnet surface
-	  G4double zPlacement = zOffset + (placeFront ? -magnetThickness/2 - 2.*mm : magnetThickness/2 + 2.*mm);
-	  
-	  // Place strip in world
-	  G4ThreeVector pos(xOffset, yOffset , zPlacement);
-	  new G4PVPlacement(nullptr, pos, aluStripLV, "AluStrip", worldLV, false, i * 1000 + j);
-	}
-	
-	int nMiddleStrips = 12;
-	G4double MiddlestripHalfLength = 250.*mm; // 25cm long strip along Y
-	// --- Middle-side Aluminum Strips (5 total) ---
-	for (int j = 1; j < nMiddleStrips; ++j) {
-	  G4bool placeFront = (j % 2 == 0);  // Alternate: even = front, odd = back
-	  
-	  G4double xOffset = -300.*mm + j * 50.*mm;
-	  G4double yOffset = 0;
-	  // Create strip solid and logical volume
-	  G4Box* aluStripSolid = new G4Box("AluStrip", stripWidth, MiddlestripHalfLength, stripThickness);
-	  G4LogicalVolume* aluStripLV = new G4LogicalVolume(aluStripSolid, aluminum, "AluStripLV");
-	  
-	  // Color it
-	  auto aluVis = new G4VisAttributes(G4Colour(0.8, 0.6, 0.4)); // Copper tone
-	  aluVis->SetForceSolid(true);
-	  aluStripLV->SetVisAttributes(aluVis);
-	  
-	  // Z position relative to magnet surface
-	  G4double zPlacement = zOffset + (placeFront ? -magnetThickness/2 - 2.*mm : magnetThickness/2 + 2.*mm);
-	  
-	  // Place strip in world
-	  G4ThreeVector pos(xOffset, yOffset , zPlacement);
-	  new G4PVPlacement(nullptr, pos, aluStripLV, "AluStrip", worldLV, false, i * 1000 + j);
-	}
-	
-	// Magnet (gray)
-	auto magnetVis = new G4VisAttributes(G4Colour(0.5, 0.5, 0.5)); // RGB: gray
-	magnetVis->SetForceSolid(true);
-	magnetLV->SetVisAttributes(magnetVis);
+      auto scifiVis = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0)); // green
+      scifiVis->SetForceSolid(true);
+      scifiLV->SetVisAttributes(scifiVis);
+      scifiLV->SetSensitiveDetector(scifiSD);
 
-	// --- Four SciFi Layers per Tracking Station ---
-
-	for (int l = 0; l < 4; ++l) {
-	  G4Box* scifiBox = new G4Box("SciFiLayer", 500.*mm, 500.*mm, scifilayerThickness / 2);
-	  G4LogicalVolume* scifiLV = new G4LogicalVolume(scifiBox, plastic, "SciFiLayerLV");
-	  
-	  G4double scifiZ = zOffset + 20.*mm+ magnetThickness/2 + 2.*mm + (l + 0.5) * scifilayerThickness;
-
-	  // Unique name per physical volume
-	  G4String physName = "SciFiLayer_" + std::to_string(i) + "_" + std::to_string(l);	  
-	  new G4PVPlacement(nullptr, G4ThreeVector(0, 0, scifiZ), scifiLV, "SciFiLayer", worldLV, false, i * 10 + l);
-	  
-	  // Color each SciFi layer
-	  auto scifiVis = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0)); // green
-	  scifiVis->SetForceSolid(true);
-	  scifiLV->SetVisAttributes(scifiVis);
-	  
-	  // Register as sensitive
-	  G4SDManager* sdManager = G4SDManager::GetSDMpointer();
-	  static SciFiSD* scifiSD = new SciFiSD("SciFiSD");
-	  sdManager->AddNewDetector(scifiSD);
-	  scifiLV->SetSensitiveDetector(scifiSD);
-	}
+      zPos += scifilayerThickness;
+      scifiLayerID++;
     }
-    // World (invisible)
-    worldLV->SetVisAttributes(G4VisAttributes::GetInvisible());
 
-    // Export GDML file
-    G4GDMLParser parser;
-    parser.Write("detector_geometry.gdml", worldPV);
-    
-    return worldPV;
+    // After last group, don't place a magnet
+    if (group == nMagnets) break;
+
+    // Gap before magnet
+    zPos += gapBeforeMagnet;
+
+    // Place magnet
+    G4Box* solidMagnet = new G4Box("Magnet", 500.*mm, 500.*mm, magnetThickness/2);
+    G4Box* slitBox = new G4Box("Slit", 250.*mm, 10.*mm, magnetThickness/2);
+
+    G4SubtractionSolid* magnetMinusSlit1 = new G4SubtractionSolid(
+      "MagnetMinusSlit1", solidMagnet, slitBox, nullptr, G4ThreeVector(0, 250.*mm, 0));
+    G4SubtractionSolid* magnetWithSlits = new G4SubtractionSolid(
+      "MagnetWithSlits", magnetMinusSlit1, slitBox, nullptr, G4ThreeVector(0, -250.*mm, 0));
+
+    G4LogicalVolume* magnetLV = new G4LogicalVolume(magnetWithSlits, steel, "MagnetLV");
+    new G4PVPlacement(nullptr, G4ThreeVector(0, 0, zPos + magnetThickness/2 - scifilayerThickness/2), magnetLV, "Magnet", worldLV, false, group);
+
+    // Magnetic field on the magnet volume
+    auto field = new MagneticField();
+    auto fieldManager = new G4FieldManager(field);
+    fieldManager->CreateChordFinder(field);
+    magnetLV->SetFieldManager(fieldManager, true);
+
+    // Magnet (gray)
+    auto magnetVis = new G4VisAttributes(G4Colour(0.5, 0.5, 0.5)); // RGB: gray
+    magnetVis->SetForceSolid(true);
+    magnetLV->SetVisAttributes(magnetVis);
+
+    // Place aluminum strips as before, using the magnet center z
+    G4double magnetZ = zPos + magnetThickness/2 - scifilayerThickness/2;
+
+    int nTopStrips = 11;
+    G4double stripWidth = 25.*mm;
+    G4double stripHalfLength = 125.*mm;
+    G4double stripThickness = 2.*mm;
+
+    for (int j = 0; j < nTopStrips; ++j) {
+      G4bool placeFront = (j % 2 == 0);
+      G4double xOffset = -250.*mm + j * 50.*mm;
+      G4double yOffset = 375.*mm;
+      G4Box* aluStripSolid = new G4Box("AluStrip", stripWidth, stripHalfLength, stripThickness);
+      G4LogicalVolume* aluStripLV = new G4LogicalVolume(aluStripSolid, aluminum, "AluStripLV");
+      auto aluVis = new G4VisAttributes(G4Colour(0.8, 0.6, 0.4));
+      aluVis->SetForceSolid(true);
+      aluStripLV->SetVisAttributes(aluVis);
+      G4double zPlacement = magnetZ + (placeFront ? -magnetThickness/2 - 2.*mm : magnetThickness/2 + 2.*mm);
+      G4ThreeVector pos(xOffset, yOffset , zPlacement);
+      new G4PVPlacement(nullptr, pos, aluStripLV, "AluStrip", worldLV, false, group * 1000 + j);
+    }
+    for (int j = 0; j < nTopStrips; ++j) {
+      G4bool placeFront = (j % 2 == 0);
+      G4double xOffset = -250.*mm + j * 50.*mm;
+      G4double yOffset = -375.*mm;
+      G4Box* aluStripSolid = new G4Box("AluStrip", stripWidth, stripHalfLength, stripThickness);
+      G4LogicalVolume* aluStripLV = new G4LogicalVolume(aluStripSolid, aluminum, "AluStripLV");
+      auto aluVis = new G4VisAttributes(G4Colour(0.8, 0.6, 0.4));
+      aluVis->SetForceSolid(true);
+      aluStripLV->SetVisAttributes(aluVis);
+      G4double zPlacement = magnetZ + (placeFront ? -magnetThickness/2 - 2.*mm : magnetThickness/2 + 2.*mm);
+      G4ThreeVector pos(xOffset, yOffset , zPlacement);
+      new G4PVPlacement(nullptr, pos, aluStripLV, "AluStrip", worldLV, false, group * 1000 + j + 100);
+    }
+    int nMiddleStrips = 12;
+    G4double MiddlestripHalfLength = 250.*mm;
+    for (int j = 1; j < nMiddleStrips; ++j) {
+      G4bool placeFront = (j % 2 == 0);
+      G4double xOffset = -300.*mm + j * 50.*mm;
+      G4double yOffset = 0;
+      G4Box* aluStripSolid = new G4Box("AluStrip", stripWidth, MiddlestripHalfLength, stripThickness);
+      G4LogicalVolume* aluStripLV = new G4LogicalVolume(aluStripSolid, aluminum, "AluStripLV");
+      auto aluVis = new G4VisAttributes(G4Colour(0.8, 0.6, 0.4));
+      aluVis->SetForceSolid(true);
+      aluStripLV->SetVisAttributes(aluVis);
+      G4double zPlacement = magnetZ + (placeFront ? -magnetThickness/2 - 2.*mm : magnetThickness/2 + 2.*mm);
+      G4ThreeVector pos(xOffset, yOffset , zPlacement);
+      new G4PVPlacement(nullptr, pos, aluStripLV, "AluStrip", worldLV, false, group * 1000 + j + 200);
+    }
+
+    // Advance zPos past the magnet
+    zPos += magnetThickness;
+
+    // Gap after magnet
+    zPos += gapAfterMagnet;
+  }
+
+  // World (invisible)
+  worldLV->SetVisAttributes(G4VisAttributes::GetInvisible());
+
+  // Export GDML file
+  G4GDMLParser parser;
+  parser.Write("detector_geometry.gdml", worldPV);
+
+  return worldPV;
 }
-

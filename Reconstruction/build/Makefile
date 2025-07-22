@@ -85,51 +85,6 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"Unspecified\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-.PHONY : list_install_components/fast
-
-# Special rule for the target install
-install: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
-	/Applications/CMake.app/Contents/bin/cmake -P cmake_install.cmake
-.PHONY : install
-
-# Special rule for the target install
-install/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
-	/Applications/CMake.app/Contents/bin/cmake -P cmake_install.cmake
-.PHONY : install/fast
-
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
-	/Applications/CMake.app/Contents/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
-	/Applications/CMake.app/Contents/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local/fast
-
-# Special rule for the target install/strip
-install/strip: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
-	/Applications/CMake.app/Contents/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip
-
-# Special rule for the target install/strip
-install/strip/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
-	/Applications/CMake.app/Contents/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
-.PHONY : install/strip/fast
-
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/Reconstruction/build/CMakeFiles /Users/ukose/sw/Work/Magnet_a_la_babymind/MuonSpectrometerSim/Reconstruction/build//CMakeFiles/progress.marks
@@ -162,65 +117,65 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named track_reconstruction
+# Target rules for targets named MuonTrackingAnalysis
 
 # Build rule for target.
-track_reconstruction: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 track_reconstruction
-.PHONY : track_reconstruction
+MuonTrackingAnalysis: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 MuonTrackingAnalysis
+.PHONY : MuonTrackingAnalysis
 
 # fast build rule for target.
-track_reconstruction/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/track_reconstruction.dir/build.make CMakeFiles/track_reconstruction.dir/build
-.PHONY : track_reconstruction/fast
+MuonTrackingAnalysis/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonTrackingAnalysis.dir/build.make CMakeFiles/MuonTrackingAnalysis.dir/build
+.PHONY : MuonTrackingAnalysis/fast
 
-src/TrackReconstruction.o: src/TrackReconstruction.cpp.o
-.PHONY : src/TrackReconstruction.o
-
-# target to build an object file
-src/TrackReconstruction.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/track_reconstruction.dir/build.make CMakeFiles/track_reconstruction.dir/src/TrackReconstruction.cpp.o
-.PHONY : src/TrackReconstruction.cpp.o
-
-src/TrackReconstruction.i: src/TrackReconstruction.cpp.i
-.PHONY : src/TrackReconstruction.i
-
-# target to preprocess a source file
-src/TrackReconstruction.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/track_reconstruction.dir/build.make CMakeFiles/track_reconstruction.dir/src/TrackReconstruction.cpp.i
-.PHONY : src/TrackReconstruction.cpp.i
-
-src/TrackReconstruction.s: src/TrackReconstruction.cpp.s
-.PHONY : src/TrackReconstruction.s
-
-# target to generate assembly for a file
-src/TrackReconstruction.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/track_reconstruction.dir/build.make CMakeFiles/track_reconstruction.dir/src/TrackReconstruction.cpp.s
-.PHONY : src/TrackReconstruction.cpp.s
-
-src/main_analysis.o: src/main_analysis.cpp.o
-.PHONY : src/main_analysis.o
+src/TrackAnalysis.o: src/TrackAnalysis.cc.o
+.PHONY : src/TrackAnalysis.o
 
 # target to build an object file
-src/main_analysis.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/track_reconstruction.dir/build.make CMakeFiles/track_reconstruction.dir/src/main_analysis.cpp.o
-.PHONY : src/main_analysis.cpp.o
+src/TrackAnalysis.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonTrackingAnalysis.dir/build.make CMakeFiles/MuonTrackingAnalysis.dir/src/TrackAnalysis.cc.o
+.PHONY : src/TrackAnalysis.cc.o
 
-src/main_analysis.i: src/main_analysis.cpp.i
-.PHONY : src/main_analysis.i
+src/TrackAnalysis.i: src/TrackAnalysis.cc.i
+.PHONY : src/TrackAnalysis.i
 
 # target to preprocess a source file
-src/main_analysis.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/track_reconstruction.dir/build.make CMakeFiles/track_reconstruction.dir/src/main_analysis.cpp.i
-.PHONY : src/main_analysis.cpp.i
+src/TrackAnalysis.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonTrackingAnalysis.dir/build.make CMakeFiles/MuonTrackingAnalysis.dir/src/TrackAnalysis.cc.i
+.PHONY : src/TrackAnalysis.cc.i
 
-src/main_analysis.s: src/main_analysis.cpp.s
-.PHONY : src/main_analysis.s
+src/TrackAnalysis.s: src/TrackAnalysis.cc.s
+.PHONY : src/TrackAnalysis.s
 
 # target to generate assembly for a file
-src/main_analysis.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/track_reconstruction.dir/build.make CMakeFiles/track_reconstruction.dir/src/main_analysis.cpp.s
-.PHONY : src/main_analysis.cpp.s
+src/TrackAnalysis.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonTrackingAnalysis.dir/build.make CMakeFiles/MuonTrackingAnalysis.dir/src/TrackAnalysis.cc.s
+.PHONY : src/TrackAnalysis.cc.s
+
+src/main.o: src/main.cc.o
+.PHONY : src/main.o
+
+# target to build an object file
+src/main.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonTrackingAnalysis.dir/build.make CMakeFiles/MuonTrackingAnalysis.dir/src/main.cc.o
+.PHONY : src/main.cc.o
+
+src/main.i: src/main.cc.i
+.PHONY : src/main.i
+
+# target to preprocess a source file
+src/main.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonTrackingAnalysis.dir/build.make CMakeFiles/MuonTrackingAnalysis.dir/src/main.cc.i
+.PHONY : src/main.cc.i
+
+src/main.s: src/main.cc.s
+.PHONY : src/main.s
+
+# target to generate assembly for a file
+src/main.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonTrackingAnalysis.dir/build.make CMakeFiles/MuonTrackingAnalysis.dir/src/main.cc.s
+.PHONY : src/main.cc.s
 
 # Help Target
 help:
@@ -229,18 +184,14 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
-	@echo "... install"
-	@echo "... install/local"
-	@echo "... install/strip"
-	@echo "... list_install_components"
 	@echo "... rebuild_cache"
-	@echo "... track_reconstruction"
-	@echo "... src/TrackReconstruction.o"
-	@echo "... src/TrackReconstruction.i"
-	@echo "... src/TrackReconstruction.s"
-	@echo "... src/main_analysis.o"
-	@echo "... src/main_analysis.i"
-	@echo "... src/main_analysis.s"
+	@echo "... MuonTrackingAnalysis"
+	@echo "... src/TrackAnalysis.o"
+	@echo "... src/TrackAnalysis.i"
+	@echo "... src/TrackAnalysis.s"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
 .PHONY : help
 
 

@@ -1,7 +1,7 @@
 # Set up the particle gun (energy will be set in PrimaryGeneratorAction)
 /gun/particle mu+
-/gun/position 0 0 -1000 mm
+/gun/position 0 0 -2500 mm
 /gun/direction 0 0 1
 
 # Generate 10000 events (1000 at each energy level from 10-100 GeV)
-/run/beamOn 10000
+/run/beamOn 50000

@@ -321,6 +321,30 @@ src/SciFiSD.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonSpectrometerSim.dir/build.make CMakeFiles/MuonSpectrometerSim.dir/src/SciFiSD.cc.s
 .PHONY : src/SciFiSD.cc.s
 
+src/SteppingAction.o: src/SteppingAction.cc.o
+.PHONY : src/SteppingAction.o
+
+# target to build an object file
+src/SteppingAction.cc.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonSpectrometerSim.dir/build.make CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.o
+.PHONY : src/SteppingAction.cc.o
+
+src/SteppingAction.i: src/SteppingAction.cc.i
+.PHONY : src/SteppingAction.i
+
+# target to preprocess a source file
+src/SteppingAction.cc.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonSpectrometerSim.dir/build.make CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.i
+.PHONY : src/SteppingAction.cc.i
+
+src/SteppingAction.s: src/SteppingAction.cc.s
+.PHONY : src/SteppingAction.s
+
+# target to generate assembly for a file
+src/SteppingAction.cc.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MuonSpectrometerSim.dir/build.make CMakeFiles/MuonSpectrometerSim.dir/src/SteppingAction.cc.s
+.PHONY : src/SteppingAction.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -354,6 +378,9 @@ help:
 	@echo "... src/SciFiSD.o"
 	@echo "... src/SciFiSD.i"
 	@echo "... src/SciFiSD.s"
+	@echo "... src/SteppingAction.o"
+	@echo "... src/SteppingAction.i"
+	@echo "... src/SteppingAction.s"
 .PHONY : help
 
 

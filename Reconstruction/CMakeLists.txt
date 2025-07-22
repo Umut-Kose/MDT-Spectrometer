@@ -1,46 +1,35 @@
-cmake_minimum_required(VERSION 3.10)
-project(TrackReconstruction)
+cmake_minimum_required(VERSION 3.16)
+project(MuonTrackingAnalysis)
 
-# Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find ROOT package
-find_package(ROOT REQUIRED COMPONENTS Core Hist Tree Matrix Physics MathCore Gui Graf3d)
-
-# Include ROOT libraries and setup
+# ------------------------------------------------------------------------------
+# Find ROOT
+# ------------------------------------------------------------------------------
+#find_package(ROOT REQUIRED CONFIG)
+find_package(ROOT REQUIRED COMPONENTS RIO Tree Hist Minuit2 Geom Gdml)
 include(${ROOT_USE_FILE})
 
-# Set source and include directories
-set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+# ------------------------------------------------------------------------------
+# GENFIT Config
+# ------------------------------------------------------------------------------
+set(GENFITINCDIR /Users/ukose/sw/kits/GenFit-install/include)
+set(GENFITLIBDIR /Users/ukose/sw/kits/GenFit-install/lib)
 
-# Set source files
-file(GLOB SOURCES 
-    ${SOURCE_DIR}/*.cpp
+include_directories(${GENFITINCDIR})
+link_directories(${GENFITLIBDIR})
+
+add_executable(MuonTrackingAnalysis
+    src/main.cc
+    src/TrackAnalysis.cc
 )
 
-# Verify sources were found
-if(NOT SOURCES)
-    message(FATAL_ERROR "No source files found in ${SOURCE_DIR}")
-endif()
-
-# Print found sources for debugging
-message(STATUS "Found sources: ${SOURCES}")
-
-# Set include directories
-include_directories(
-    ${INCLUDE_DIR}
+target_include_directories(MuonTrackingAnalysis PRIVATE
     ${ROOT_INCLUDE_DIRS}
+    ${GENFITINCDIR}
+    ${CMAKE_SOURCE_DIR}/include
 )
 
-# Create executable
-add_executable(track_reconstruction ${SOURCES})
-
-# Link ROOT libraries
-target_link_libraries(track_reconstruction
+target_link_libraries(MuonTrackingAnalysis
     ${ROOT_LIBRARIES}
+    genfit2
 )
-
-# Install target (optional)
-install(TARGETS track_reconstruction DESTINATION bin)

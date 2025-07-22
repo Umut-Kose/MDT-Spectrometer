@@ -19,8 +19,9 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   fParticleGun->SetParticleDefinition(muon);
   
   // Start position at origin
-  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -1000. * mm));
-  
+  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -2500. * mm));
+  //fParticleGun->SetParticlePosition(G4ThreeVector(0, 0, -worldZ/2 - 10*mm));
+
   // Direction along +Z
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 0., 1.));
 }
@@ -34,6 +35,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
   //if (fEnergyIndex >= fEnergies.size())
   //  return; // stop firing when out of energy steps
+  /*
+  the following code give duplicate eventID numbers!!
   if (fEnergyIndex >= fEnergies.size()) {
     fEnergyIndex = 0; // Reset to loop through energies again
   }
@@ -43,6 +46,17 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   fParticleGun->GeneratePrimaryVertex(anEvent);
   
   G4cout << "Fired muon with energy: " << energy / GeV << " GeV" << G4endl;
+  */
+// Use modulo to cycle through energies safely
+  G4int currentIndex = fEnergyIndex % fEnergies.size();
+  G4double energy = fEnergies[currentIndex];
   
+  fParticleGun->SetParticleEnergy(energy);
+  fParticleGun->GeneratePrimaryVertex(anEvent);
+  
+  G4cout << "Event " << anEvent->GetEventID() 
+         << ": Fired muon with energy: " << energy / GeV << " GeV" << G4endl;
+  
+
   ++fEnergyIndex;
 }
