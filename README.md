@@ -33,6 +33,13 @@ make -j
 ./MuonSpectrometerSim macro/run_1000events.mac
 getting scifi_hits.root output file
 
+# Reconstruction
+event by event to study reconstruction and momentum estimate with plots
+tools/reco_genfit.cc 
+same as above but estimate momentum for all events without plots
+/tools/reco_genfit_batch.cc
+
+compiling use: "make Makefile_genfit" or "make MAkefile_genfit_batch"
 
 # Display
 
