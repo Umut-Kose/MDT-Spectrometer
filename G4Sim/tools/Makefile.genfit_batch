@@ -1,0 +1,43 @@
+
+# Makefile.genfit_batch
+# Builds genfit_reco_batch — standalone GenFit reconstruction for MDT spectrometer
+# Uses same GenFit/CLHEP installation as NewFASER/FASER/Batch/Makefile
+#
+# Build: make -f Makefile.genfit_batch
+# Examples:
+#   ./genfit_reco_batch mdt_hits.root reco_results.root detector_geometry.gdml 0.080 1
+#
+# ── Paths — same as NewFASER/FASER/Makefile.common ───────────────────────────
+GENFITINSTALL := /Users/ukose/sw/kits/GenFit-install
+RAVEINSTALL   := /Users/ukose/sw/kits/rave-install
+CLHEPINSTALL  := /Users/ukose/sw/kits/CLHEP-install
+
+GENFITINCDIR  := $(GENFITINSTALL)/include
+
+# ── Compiler flags ────────────────────────────────────────────────────────────
+ROOTCFLAGS := $(shell root-config --cflags)
+CXXFLAGS   := $(ROOTCFLAGS) -I$(GENFITINCDIR) -O2 -std=c++17
+
+# ── Libraries — same as NewFASER Batch/Makefile LINKLIB ──────────────────────
+ROOTLIBS   := $(shell root-config --libs) -lEG -lGeom
+
+GENFITLIBS := -Wl,-rpath,$(GENFITINSTALL)/lib \
+              -Wl,-rpath,$(RAVEINSTALL)/lib    \
+              -Wl,-rpath,$(CLHEPINSTALL)/lib   \
+              -L$(GENFITINSTALL)/lib -lgenfit2 \
+              -L$(CLHEPINSTALL)/lib  -lCLHEP
+
+# ── Targets ───────────────────────────────────────────────────────────────────
+EXE := genfit_reco_batch
+
+all: $(EXE)
+
+$(EXE): genfit_reco_batch.cc
+	$(CXX) $(CXXFLAGS) genfit_reco_batch.cc $(ROOTLIBS) $(GENFITLIBS) -o $@
+	@echo "Built: $(EXE)"
+	@echo "Run:   ./$(EXE) [mdt_hits.root] [reco_result.root] [detector_geometry.gdml] [driftSigma_mm fitDirection(0|1)] [nDebugDump]"
+
+clean:
+	rm -f $(EXE)
+
+.PHONY: all clean

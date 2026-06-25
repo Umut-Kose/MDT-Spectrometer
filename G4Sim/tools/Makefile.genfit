@@ -1,0 +1,47 @@
+
+# Makefile.genfit
+# Builds genfit_reco — standalone GenFit reconstruction for MDT spectrometer
+# Uses same GenFit/CLHEP installation as NewFASER/FASER/Batch/Makefile
+#
+# Build: make -f Makefile.genfit
+# Run:   ./genfit_reco [eventNum=4] [smearSigma_mm=0.080] [verbose=1]
+# Examples:
+#   ./genfit_reco 0 0.080    # event 0 = 10 GeV muon
+#   ./genfit_reco 4 0.080    # event 4 = 50 GeV muon
+#   ./genfit_reco 9 0.080    # event 9 = 100 GeV muon
+#   ./genfit_reco 4 0.080 2  # verbose=2 (more GenFit output)
+
+# ── Paths — same as NewFASER/FASER/Makefile.common ───────────────────────────
+GENFITINSTALL := /Users/ukose/sw/kits/GenFit-install
+RAVEINSTALL   := /Users/ukose/sw/kits/rave-install
+CLHEPINSTALL  := /Users/ukose/sw/kits/CLHEP-install
+
+GENFITINCDIR  := $(GENFITINSTALL)/include
+
+# ── Compiler flags ────────────────────────────────────────────────────────────
+ROOTCFLAGS := $(shell root-config --cflags)
+CXXFLAGS   := $(ROOTCFLAGS) -I$(GENFITINCDIR) -O2 -std=c++17
+
+# ── Libraries — same as NewFASER Batch/Makefile LINKLIB ──────────────────────
+ROOTLIBS   := $(shell root-config --libs) -lEG -lGeom
+
+GENFITLIBS := -Wl,-rpath,$(GENFITINSTALL)/lib \
+              -Wl,-rpath,$(RAVEINSTALL)/lib    \
+              -Wl,-rpath,$(CLHEPINSTALL)/lib   \
+              -L$(GENFITINSTALL)/lib -lgenfit2 \
+              -L$(CLHEPINSTALL)/lib  -lCLHEP
+
+# ── Targets ───────────────────────────────────────────────────────────────────
+EXE := genfit_reco
+
+all: $(EXE)
+
+$(EXE): genfit_reco.cc
+	$(CXX) $(CXXFLAGS) genfit_reco.cc $(ROOTLIBS) $(GENFITLIBS) -o $@
+	@echo "Built: $(EXE)"
+	@echo "Run:   ./$(EXE) [mdt_hits.root] [detector_geometry.gdml] [eventNum] [smearSigma_mm] [Material]"
+
+clean:
+	rm -f $(EXE)
+
+.PHONY: all clean
