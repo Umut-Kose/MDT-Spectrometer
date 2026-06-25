@@ -6,7 +6,7 @@
 int main(int argc, char** argv)
 {
   if (argc < 3) {
-    std::cerr << "Usage: " << argv[0] << " scifi_hits.root detector_geometry.gdml" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " mdt_hits.root detector_geometry.gdml" << std::endl;
     return 1;
   }
   // Print current directory and full paths

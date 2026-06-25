@@ -1,4 +1,16 @@
 
+/*
+ * EventDisplayTEve.cpp - TEve-based Event Display for Muon Spectrometer Simulation
+ * 
+ * Detector Configuration:
+ * - 4 Tracking Stations (each with 4 layers of MDTs - Muon Drift Tubes)
+ * - 3 Magnet Iron pieces (40 cm thick each)
+ * - Total: 16 MDT layers + 3 magnets
+ * 
+ * Version: MDT configuration (updated from SciFi detectors)
+ * Backup of SciFi version available in: backup_scifi_version/
+ */
+
 #include "EventDisplayTEve.h"
 
 
@@ -84,12 +96,13 @@ void GetDetector(const std::string& gdmlFile)
     eveShape->SetTransMatrix(transform);
     
     // Color-coding based on volume name
+    // New detector configuration: 4 layers of MDTs per station, 4 stations total, 3 magnet iron pieces (40cm thick)
     TString volName = vol->GetName();
     
-    if (volName.Contains("SciFi"))
-      eveShape->SetMainColor(kGreen + 1);
-    else if (volName.Contains("Magnet"))
-      eveShape->SetMainColor(kGray + 1);
+    if (volName.Contains("MDT") || volName.Contains("mdt"))
+      eveShape->SetMainColor(kGreen + 1);  // MDT layers in green
+    else if (volName.Contains("Magnet") || volName.Contains("magnet"))
+      eveShape->SetMainColor(kGray + 1);   // Magnet iron in gray
     else if (volName.Contains("AluStrip"))
       eveShape->SetMainColor(kOrange + 7);
     else

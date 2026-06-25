@@ -1,0 +1,6 @@
+/run/initialize
+/run/beamOn 150000
+#/MDT/verbose 0
+/MDT/verbose 1
+#/MDT/verbose 2
+#/MDT/verbose 3

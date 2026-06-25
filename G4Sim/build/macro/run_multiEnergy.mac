@@ -4,4 +4,4 @@
 /gun/direction 0 0 1
 
 # Generate 10000 events (1000 at each energy level from 10-100 GeV)
-/run/beamOn 50000
+/run/beamOn 200000

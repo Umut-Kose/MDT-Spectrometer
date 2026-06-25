@@ -8,6 +8,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include <TGeoManager.h>  
+#include <tuple>
 
 // Include complete GENFIT headers
 #include <AbsBField.h>
@@ -46,15 +47,15 @@ public:
         
         double sagittaMomentum; // Momentum from sagitta method
         double sagittaMomentum_trk; // Momentum from sagitta method for tracklets        
-        double kasaMomentum; // Momentum from Kasa circle fit
-        double taubinMomentum; // Momentum from Taubin circle fit
         
+        double kasaMomentum; // Momentum from Kasa circle fit
         double kasaMomentum_trk;    // Momentum from Kasa circle fit for tracklets
+
+        double taubinMomentum; // Momentum from Taubin circle fit
         double taubinMomentum_trk;   // Momentum from Taubin circle fit for tracklets
-        double circleMomentum_trk;   // Momentum from circle fit for tracklets
-        double circleMomentum; // Momentum from circle fit in (y, z) plane
-        double circleMomentum2;
-        double kinkMomentum;
+
+        double trackletDeflectionMomentum; // Momentum from tracklet deflection
+        double trackletDeflectionMomentum_trk; // Momentum from tracklet deflection for track
 
         double kalmanMomentum;  // Momentum from Kalman filter        
         double kalmanMomentumErr; // Error on Kalman momentum
@@ -65,6 +66,26 @@ public:
         int genfitCharge;         // +1 or -1
         double genfitMomentumErr; // Error on GENFIT momentum
 
+        // Add charge fields for each method
+        int sagittaCharge = 0;           // Sign from sagitta method
+        int sagittaCharge_trk = 0;       // Sign from sagitta method for tracklets
+        int kasaCharge = 0;              // Sign from Kasa circle fit
+        int kasaCharge_trk = 0;          // Sign from Kasa circle fit for tracklets
+        int taubinCharge = 0;            // Sign from Taubin circle fit
+        int taubinCharge_trk = 0;        // Sign from Taubin circle fit for tracklets
+        int trackletDeflectionCharge = 0; // Sign from tracklet deflection
+        int trackletDeflectionCharge_trk = 0; // Sign from tracklet deflection for tracklets
+        int kalmanCharge = 0;            // Sign from Kalman filter
+    
+         // Resolution fields (momentum errors)
+        double sagittaResolution = -1;
+        double sagittaResolution_trk = -1;
+        double kasaResolution = -1;
+        double kasaResolution_trk = -1;
+        double taubinResolution = -1;
+        double taubinResolution_trk = -1;
+        double trackletDeflectionMomentumErr = -1;
+        double trackletDeflectionMomentumErr_trk = -1;
 
     };
 
@@ -75,6 +96,7 @@ struct CircleFitResult {
     int ndf;         // N-3
     double p;       // momentum estimate (GeV/c)
     double p_err;   // error on momentum (GeV/c)
+    int charge;     // +1 or -1
     bool ok;
 };
 
@@ -88,7 +110,7 @@ struct State {
 
     int verbose = 0; // 0 = silent, 1 = info, 2 = debug, etc.
 
-    static constexpr double MagnetFieldStrength = 1.5; // Tesla changed from 1.8T
+    static constexpr double MagnetFieldStrength = 1.8; // Tesla changed from 1.8T
     const double IronThickness = 0.15; // meters, default iron thickness
 
 
@@ -109,6 +131,7 @@ struct State {
     TrackAnalysis(TGeoManager* geo = nullptr);
     void BuildGeometryMaps();  // Call in constructor
     double GetFieldX(double x, double y, double z) const;
+    double GetFieldBX(double y) const;
     bool IsInMagnet(double z) const;
     bool IsMagnetExist(double z1,double z2) const;
 
@@ -122,8 +145,8 @@ private:
             //std::cout << "[MAGFIELD] Query at y=" << position.Y() << std::endl;
             double y = position.Y();
             double B = ta_->MagnetFieldStrength; 
-            if (std::abs(y) >= 250 && std::abs(y) <= 500) return TVector3(B, 0, 0);
-            if (std::abs(y) < 250) return TVector3(-1*B, 0, 0);
+            if (std::abs(y) >= 25.0 && std::abs(y) <= 50.0) return TVector3(B, 0, 0);
+            if (std::abs(y) < 25.0) return TVector3(-1*B, 0, 0);
             return TVector3(0, 0, 0);
         }
         
@@ -139,7 +162,23 @@ private:
     public:
         // Take a pointer to the parent analysis so it can access GetFieldX
         GeoField(const TrackAnalysis* ta) : ta_(ta) {}
-        TVector3 get(const TVector3& position) const override;
+        TVector3 get(const TVector3& position) const override 
+        {
+            double x_mm = position.X() * 10.0; // cm to mm
+            double y_mm = position.Y() * 10.0; // cm to mm  
+            double z_mm = position.Z() * 10.0; // cm to mm
+            
+            double bx = ta_->GetFieldX(x_mm, y_mm, z_mm); // in Tesla
+            
+            // ADD DEBUG OUTPUT HERE:
+            //if (ta_->verbose >= 2) {
+            //    std::cout << "[GEOFIELD] Query at (x=" << x_mm << ", y=" << y_mm 
+            //            << ", z=" << z_mm << ") mm --> Bx=" << bx << " T" << std::endl;
+            // }
+            
+            return TVector3(bx, 0, 0);
+        }
+    
         genfit::AbsBField* clone() const { return new GeoField(*this); }
 
     private:
@@ -204,7 +243,8 @@ private:
         const std::vector<Tracklet>& tracklets, 
         const std::vector<std::pair<int,int>>& iron_regions, 
         double B, double iron_thickness);
-    std::pair<double, double>  MomentumFromTrackletDeflection(const std::vector<Tracklet>& tracklets,double bx_field, double iron_thickness_m,bool use_3D_angle); 
+   // std::pair<double, double> 
+    std::tuple<double, double, int> MomentumFromTrackletDeflection(const std::vector<Tracklet>& tracklets,double bx_field, double iron_thickness_m,bool use_3D_angle); 
    double GlobalDirectionDeflectionMomentum(const std::vector<Tracklet>& tracklets,double bx_field, double iron_thickness_m);      
   
     // Circle fit in (y, z) plane for Bx field using KAsa and Taubin methods

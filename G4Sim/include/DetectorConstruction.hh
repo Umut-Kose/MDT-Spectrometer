@@ -1,15 +1,22 @@
-#ifndef DetectorConstruction_h
-#define DetectorConstruction_h 1
+#ifndef DETECTORCONSTRUCTION_HH
+#define DETECTORCONSTRUCTION_HH
 
 #include "G4VUserDetectorConstruction.hh"
-#include "globals.hh"
 
-class DetectorConstruction : public G4VUserDetectorConstruction {
+class G4LogicalVolume;
+class G4VPhysicalVolume;
+
+class DetectorConstruction : public G4VUserDetectorConstruction
+{
 public:
-    DetectorConstruction();
-    virtual ~DetectorConstruction();
+  DetectorConstruction();
+  ~DetectorConstruction() override;
 
-    virtual G4VPhysicalVolume* Construct();
+  G4VPhysicalVolume* Construct() override;
+  void ConstructSDandField() override;
+
+private:
+    G4LogicalVolume* fTubeInnerLV = nullptr;
 };
 
 #endif

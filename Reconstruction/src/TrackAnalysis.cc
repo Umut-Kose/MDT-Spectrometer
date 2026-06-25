@@ -30,6 +30,7 @@ Magnetic field strength should be in Tesla
 #include <TTree.h>
 #include <map>
 #include <cmath>
+#include <tuple>
 
 #include <TCanvas.h>
 #include <TGraph2D.h>
@@ -58,6 +59,7 @@ TrackAnalysis::TrackAnalysis(TGeoManager* geo) : trackRepMinus_(nullptr), trackR
     // Initialize GENFIT track representation for muons
     trackRepMinus_ = new genfit::RKTrackRep(13);   // mu-
     trackRepPlus_  = new genfit::RKTrackRep(-13);  // mu+
+    
     // Set up magnetic field
     if (geo_) {
         geo_ = geo;
@@ -150,6 +152,9 @@ bool TrackAnalysis::IsMagnetExist(double z1,double z2) const {
 //// GetFieldX method implementation.            ///////
 /////////////////////////////////////////////////////////
 double TrackAnalysis::GetFieldX(double x, double y, double z) const {
+   if (verbose >= 3) {
+        std::cout << "[GetFieldX] Input: x=" << x << ", y=" << y << ", z=" << z << std::endl;
+    }    
     // x, y and z are in mm
     // magnet_z_ranges_ are in cm
     z = z / 10.0; // Convert to cm
@@ -164,9 +169,18 @@ double TrackAnalysis::GetFieldX(double x, double y, double z) const {
     }
     return 0.0;
 }
+double TrackAnalysis::GetFieldBX(double y) const {
+    y = y / 10.0; // Convert to cm
+    // Check if the position is within any magnet range
+    if (std::abs(y) >= 25. && std::abs(y) <= 50.) return MagnetFieldStrength; // Tesla
+    else if (std::abs(y) < 25.) return -1*MagnetFieldStrength; // Tesla
+    else return 0.0; // Outside the magnet field        
+    return 0.0;
+}
 /////////////////////////////////////////////////////////
 //// GeoField class implementation.               ///////
 /////////////////////////////////////////////////////////
+/*
 TVector3 TrackAnalysis::GeoField::get(const TVector3& position) const {
     // GENFIT gives position in cm! 
     double x_mm = position.X() * 10.0;
@@ -178,7 +192,7 @@ TVector3 TrackAnalysis::GeoField::get(const TVector3& position) const {
                   << ") mm --> Bx=" << bx << " T" << std::endl;
     // Only Bx, By = 0, Bz = 0
     return TVector3(bx, 0, 0);
-}
+}*/
 /////////////////////////////////////////////////////////
 //// Get IronThickness                            ///////
 /////////////////////////////////////////////////////////
@@ -247,7 +261,7 @@ void TrackAnalysis::ProcessEvent(
     const std::vector<int>& pdg)
 {
     //if (eventID > 1 )
-    //      return; // Skip events that are not the first one
+    //    return; // Skip events that are not the first one
 
     // 1. Convert raw input to hits
     std::vector<Hit> hits;
@@ -288,7 +302,23 @@ void TrackAnalysis::ProcessEvent(
         results_.back().eventID = eventID;
         results_.back().trackID = this_trackID;
         results_.back().pdg = this_pdg;
-
+        //Initialize all charge fields to 0
+        results_.back().sagittaCharge = 0;
+        results_.back().kasaCharge = 0;
+        results_.back().taubinCharge = 0;
+        results_.back().trackletDeflectionCharge = 0;
+        results_.back().kalmanCharge = 0;
+        results_.back().genfitCharge = 0;
+        //Initialize resolution fields
+        results_.back().sagittaResolution = -1;
+        results_.back().kasaResolution = -1;
+        results_.back().taubinResolution = -1;
+        results_.back().trackletDeflectionMomentumErr = -1;       
+        results_.back().sagittaResolution_trk = -1;
+        results_.back().kasaResolution_trk = -1;
+        results_.back().taubinResolution_trk = -1;
+        results_.back().trackletDeflectionMomentumErr_trk = -1; // Initialize tracklet deflection momentum error
+        
         // -- Sort hits by Z
         std::vector<Hit> sorted_hits = track_hits;
         std::sort(sorted_hits.begin(), sorted_hits.end(),
@@ -314,27 +344,35 @@ void TrackAnalysis::ProcessEvent(
             std::cout << "[SAGITTA] TrackID: " << this_trackID
                       << ", PDG: " << this_pdg
                       << ", Sagitta Momentum: " << sagittaMomentum << " GeV/c" << std::endl;
-        
+        std::cout << "#####%%%%%%#######" << std::endl;
         // -- 2D Circle fit using Kasa method
         auto kasaResult = CircleFitYZ_Kasa(sorted_hits, MagnetFieldStrength);
         results_.back().kasaMomentum = kasaResult.p;
+        results_.back().kasaCharge = kasaResult.charge;
+        results_.back().kasaResolution = kasaResult.sigma; // Store sigma as resolution
         //if (verbose == 1) 
             std::cout << "[CIRCLE_Kasa_Hits] TrackID: " << this_trackID 
                       << ", PDG: " << this_pdg 
                       << ", Circle Fit Center: (" << kasaResult.yc << ", " << kasaResult.zc<< ") mm" 
                       << ", Circle Fit Radius: " << kasaResult.R << ", Sigma: " << kasaResult.sigma
                       << ", Circle Fit Momentum: " << kasaResult.p << " GeV/c ± " << kasaResult.p_err  << " GeV/c" 
+                      << ", circleCharge: " << kasaResult.charge
                       << std::endl;
+        std::cout << "#####%%%%%%#######" << std::endl;
         // -- 2D Circle fit using Taubin method
         auto taubinResult = CircleFitYZ_Taubin(sorted_hits, MagnetFieldStrength);
         results_.back().taubinMomentum = taubinResult.p;
+        results_.back().taubinCharge = taubinResult.charge;
+        results_.back().taubinResolution = taubinResult.sigma; // Store sigma as resolution
         //if (verbose == 1) 
             std::cout << "[CIRCLE_Taubin_Hits] TrackID: " << this_trackID 
                       << ", PDG: " << this_pdg 
                       << ", Circle Fit Center: (" << taubinResult.yc << ", " << taubinResult.zc << ") mm" 
                       << ", Circle Fit Radius: " << taubinResult.R << ", Sigma: " << taubinResult.sigma 
                       << ", Circle Fit Momentum: " << taubinResult.p << " GeV/c ± " << taubinResult.p_err  << " GeV/c" 
+                      << ", circleCharge: " << taubinResult.charge
                       << std::endl;
+        std::cout << "#####%%%%%%#######" << std::endl;
         ///////////////////////////////////////////////////
         ///////////////////////////////////////////////////
         // -- constructing tracklets from hits
@@ -354,10 +392,13 @@ void TrackAnalysis::ProcessEvent(
             std::cout << "[SAGITTA] TrackID: " << this_trackID
                       << ", PDG: " << this_pdg
                       << ", Sagitta Momentum: " << sagittaMomentum_trk  << " GeV/c" << std::endl;
+        std::cout << "#####%%%%%%#######" << std::endl;
         
 
         auto kasaResult_trk = CircleFitYZ_Kasa(tracklets, MagnetFieldStrength);
         results_.back().kasaMomentum_trk = kasaResult_trk.p;
+        results_.back().kasaCharge_trk = kasaResult_trk.charge;
+        results_.back().kasaResolution_trk = kasaResult_trk.p_err;
         //if (verbose == 1) 
             std::cout << "[CIRCLE_Kasa_Tracklets] TrackID: " << this_trackID 
                       << ", PDG: " << this_pdg 
@@ -365,9 +406,12 @@ void TrackAnalysis::ProcessEvent(
                       << ", Circle Fit Radius: " << kasaResult_trk.R << ", Sigma: " << kasaResult_trk.sigma
                       << ", Circle Fit Momentum: " << kasaResult_trk.p << " GeV/c ± " << kasaResult_trk.p_err  << " GeV/c" 
                       << std::endl;
+        std::cout << "#####%%%%%%#######" << std::endl;
         // -- 2D Circle fit using Taubin method
         auto taubinResult_trk = CircleFitYZ_Taubin(tracklets, MagnetFieldStrength);
         results_.back().taubinMomentum_trk = taubinResult_trk.p;
+        results_.back().taubinCharge_trk = taubinResult_trk.charge;
+        results_.back().taubinResolution_trk = taubinResult_trk.p_err;
         //if (verbose == 1) 
             std::cout << "[CIRCLE_Taubin_Tracklets] TrackID: " << this_trackID 
                       << ", PDG: " << this_pdg 
@@ -375,19 +419,34 @@ void TrackAnalysis::ProcessEvent(
                       << ", Circle Fit Radius: " << taubinResult_trk.R << ", Sigma: " << taubinResult_trk.sigma
                       << ", Circle Fit Momentum: " << taubinResult_trk.p << " GeV/c ± " << taubinResult_trk.p_err  << " GeV/c" 
                       << std::endl;
-
+        std::cout << "#####%%%%%%#######" << std::endl;
         //use the tracklet deflection method in 3D to get momentum
         auto reco = MomentumFromTrackletDeflection(tracklets, MagnetFieldStrength, iron_thickness, true);
-        double trackletMomentum = reco.first;
-        double trackletMomentumErr = reco.second;
-        std::cout << "[DEFLECTION] Tracklet Deflection Momentum = " << trackletMomentum << " GeV/c, error = " << trackletMomentumErr << std::endl;
-        results_.back().circleMomentum = trackletMomentum;
+        //double trackletMomentum = reco.first;
+        //double trackletMomentumErr = reco.second;
+        double trackletMomentum = std::get<0>(reco);
+        double trackletMomentumErr = std::get<1>(reco);
+        int trackletCharge = std::get<2>(reco);
+        results_.back().trackletDeflectionMomentum = trackletMomentum;
+        results_.back().trackletDeflectionMomentumErr = trackletMomentumErr;
+        results_.back().trackletDeflectionCharge = trackletCharge;
+        // Print the tracklet deflection momentum
+        std::cout << "[DEFLECTION] Tracklet Deflection Momentum: " 
+                  << trackletMomentum << " GeV/c, error = " << trackletMomentumErr 
+                  << ", charge = " << trackletCharge
+                  << std::endl;        
+        std::cout << "#####%%%%%%#######" << std::endl;
 
         double effective_iron_thickness = iron_thickness * (tracklets.size() - 1);
-        results_.back().circleMomentum2 = GlobalDirectionDeflectionMomentum(tracklets, MagnetFieldStrength, effective_iron_thickness);
+        results_.back().trackletDeflectionMomentum_trk = GlobalDirectionDeflectionMomentum(tracklets, MagnetFieldStrength, effective_iron_thickness);
+        results_.back().trackletDeflectionMomentumErr_trk = trackletMomentumErr; // Use the same error as for the deflection method
+        results_.back().trackletDeflectionCharge_trk = trackletCharge;
         std::cout << "[GLOBAL] Global Direction Deflection Momentum: " 
-                  << results_.back().circleMomentum2 << " GeV/c" << std::endl;
-
+                  << results_.back().trackletDeflectionMomentum_trk << " GeV/c" 
+                  << ", error = " << results_.back().trackletDeflectionMomentumErr_trk 
+                  << ", charge = " << results_.back().trackletDeflectionCharge_trk
+                  << std::endl;
+        std::cout << "#####%%%%%%#######" << std::endl;
         
         //auto smoothed_positions = SmoothedTrackletPositions(tracklets);
         //std::vector<Tracklet> smoothed_tracklets = tracklets; // Make a copy
@@ -447,6 +506,7 @@ void TrackAnalysis::ProcessEvent(
                       << ": Momentum = " << res.kalmanMomentum 
                       << " GeV/c, Chi2 = " << res.kalmanChi2 
                       << " GeV/c, Error = " << res.kalmanMomentumErr << std::endl;
+            std::cout << "#####%%%%%%#######" << std::endl;
 
             // ----- Run Genfit
             RunGenfitTracklets(tracklets, seed.value);
@@ -454,7 +514,8 @@ void TrackAnalysis::ProcessEvent(
                       << ": Momentum = " << res.genfitMomentum 
                       << " GeV/c, Chi2 = " << res.genfitChi2 
                       << " GeV/c, Error = " << res.genfitMomentumErr << std::endl;
-            
+            std::cout << "#####%%%%%%#######" << std::endl;
+        
         }
     }
 
@@ -734,7 +795,8 @@ void TrackAnalysis::RunKalmanFilter(const std::vector<Hit>& hits, double seed_p)
 ///////////////////////////////////////////////////////// 
 ///// RunGenfit method using hits                 ///////
 /////////////////////////////////////////////////////////
-void TrackAnalysis::RunGenfit(const std::vector<Hit>& hits) {
+void TrackAnalysis::RunGenfit(const std::vector<Hit>& hits) 
+{
     if (hits.size() < 4) {
         results_.back().genfitMomentum = 0;
         results_.back().genfitChi2 = 9999;
@@ -806,7 +868,7 @@ void TrackAnalysis::RunGenfit(const std::vector<Hit>& hits) {
     for (const auto& hit : augmentedHits) {
     double bx = GetFieldX(hit.position.X(), hit.position.Y(), hit.position.Z());
     std::cout << "Hit at z=" << hit.position.Z() << "mm: Bx=" << bx << " T" << std::endl;
-}
+    }
 
     // Positions in cm, momenta in GeV/c
     TVectorD stateSeed(6);
@@ -824,8 +886,8 @@ void TrackAnalysis::RunGenfit(const std::vector<Hit>& hits) {
     TMatrixDSym covSeed(6);
     covSeed.Zero();
     // Position errors in cm^2, momentum errors in (GeV/c)^2
-    covSeed(0,0) = covSeed(1,1) = covSeed(2,2) = 0.1;  // 1 mm2 --> 0.01 cm^2  resolution
-    covSeed(3,3) = covSeed(4,4) = covSeed(5,5) = 0.01;  // 0.1 GeV/c^2 100 MeV
+    covSeed(0,0) = covSeed(1,1) = covSeed(2,2) = 0.01;  // 1 mm2 --> 0.01 cm^2  resolution
+    covSeed(3,3) = covSeed(4,4) = covSeed(5,5) = 1.;  // 1 (GeV/c)^2
 
     // Before fitting, print initial state:
     std::cout << "Initial seed state (cm, GeV/c):\n";
@@ -921,134 +983,6 @@ void TrackAnalysis::RunGenfit(const std::vector<Hit>& hits) {
     }
 
 }
-/*
-void TrackAnalysis::RunGenfit(const std::vector<Hit>& hits) {
-    if (hits.size() < 4) { results_.back().genfitMomentum = 0; results_.back().genfitChi2 = 9999; return; }
-
-    // Prepare the seed state and covariance:
-    TVectorD stateSeed(6);
-    stateSeed[0] = hits[0].position.X();
-    stateSeed[1] = hits[0].position.Y();
-    stateSeed[2] = hits[0].position.Z();
-    stateSeed[3] = hits[0].momentum.X();
-    stateSeed[4] = hits[0].momentum.Y();
-    stateSeed[5] = hits[0].momentum.Z();
-
-    TMatrixDSym covSeed(6);
-    covSeed.UnitMatrix(); // Or set diagonal values to reasonable variances (e.g., 1 mmˆ2 and 1 (GeV/c)ˆ2)
-    covSeed(0,0) = covSeed(1,1) = covSeed(2,2) = 10; // mmˆ2 changin from 0.1 to 10
-    covSeed(3,3) = covSeed(4,4) = covSeed(5,5) = 1.0;  // (MeV/c)ˆ2 // measurement error
-
-    // Results for both charges
-    double chi2_minus = 1e9, chi2_plus = 1e9;
-    double p_minus = 0, p_plus = 0;
-    
-    std::vector<TVector3> fittedTrackPointsMinus;
-    std::vector<TVector3> fittedTrackPointsPlus;
-    
-    // Fit as mu- (PDG=13, charge -1)
-    {
-        genfit::RKTrackRep* rep = new genfit::RKTrackRep(13);
-        genfit::Track* track = new genfit::Track(rep, stateSeed, covSeed);
-        // Measurements
-        for (const auto& hit : hits) {
-            TVectorD hitCoords(3);
-            hitCoords(0) = hit.position.X();
-            hitCoords(1) = hit.position.Y();
-            hitCoords(2) = hit.position.Z();
-            TMatrixDSym hitCov(3); hitCov.UnitMatrix(); hitCov *= 0.01;
-            //std::cout << "[DEBUG] hitCoords size: " << hitCoords.GetNrows() 
-            //          << ", hitCov size: " << hitCov.GetNrows() << "x" << hitCov.GetNcols() << std::endl;
-            //for (int i = 0; i < hitCoords.GetNrows(); ++i)
-            //    std::cout << "  hitCoords[" << i << "] = " << hitCoords[i] << std::endl;
-            track->insertMeasurement(new genfit::SpacepointMeasurement(hitCoords, hitCov, hit.stationID, hit.layerID, nullptr));
-        }
-        genfit::DAF daf;
-        try {
-            daf.processTrack(track);
-            const genfit::FitStatus* fitStatus = track->getFitStatus(rep);
-            if (fitStatus) {
-                chi2_minus = fitStatus->getChi2() / fitStatus->getNdf();
-                //genfit::MeasuredStateOnPlane mop = track->getFittedState(rep);
-                genfit::MeasuredStateOnPlane mop = track->getFittedState();
-                p_minus = mop.getMom().Mag() / 1000.; // GeV
-
-                for (int i = 0; i < track->getNumPointsWithMeasurement(); ++i) {
-                    genfit::MeasuredStateOnPlane mop = track->getFittedState(i, rep);
-                    fittedTrackPointsMinus.push_back(mop.getPos());
-                    // for debugging
-                    TVector3 pos = mop.getPos();
-                    TVector3 mom = mop.getMom();
-                    std::cout << "Fitted point " << i << ": (" 
-                            << pos.X() << ", " << pos.Y() << ", " << pos.Z() 
-                            << "), momentum: (" << mom.X() << ", " << mom.Y() << ", " << mom.Z() << ")"
-                            << ", |p| = " << mom.Mag() << std::endl;
-                }
-            }
-        } catch (...) { chi2_minus = 1e9; }
-        delete rep;
-    }
-    // Fit as mu+ (PDG=-13, charge +1)
-    {
-        genfit::RKTrackRep* rep = new genfit::RKTrackRep(-13);
-        genfit::Track* track = new genfit::Track(rep, stateSeed, covSeed);
-        for (const auto& hit : hits) {
-            TVectorD hitCoords(3);
-            hitCoords(0) = hit.position.X();
-            hitCoords(1) = hit.position.Y();
-            hitCoords(2) = hit.position.Z();
-            TMatrixDSym hitCov(3); hitCov.UnitMatrix(); hitCov *= 0.01;
-            track->insertMeasurement(new genfit::SpacepointMeasurement(hitCoords, hitCov, hit.stationID, hit.layerID, nullptr));
-        }
-        genfit::DAF daf;
-        try {
-            daf.processTrack(track);
-            const genfit::FitStatus* fitStatus = track->getFitStatus(rep);
-            if (fitStatus) {
-                chi2_plus = fitStatus->getChi2() / fitStatus->getNdf();
-                genfit::MeasuredStateOnPlane mop = track->getFittedState();
-                p_plus = mop.getMom().Mag() / 1000.; // GeV
-
-
-                std::cout << "[GENFIT] converged: " << fitStatus->isFitConverged()
-                        << ", chi2: " << fitStatus->getChi2() 
-                        << ", ndf: " << fitStatus->getNdf() << std::endl;
-                
-                for (int i = 0; i < track->getNumPointsWithMeasurement(); ++i) {
-                    genfit::MeasuredStateOnPlane mop = track->getFittedState(i, rep);
-                    fittedTrackPointsPlus.push_back(mop.getPos());
-                    // for debugging
-                    TVector3 pos = mop.getPos();
-                    TVector3 mom = mop.getMom();
-                    std::cout << "Fitted point " << i << ": (" 
-                            << pos.X() << ", " << pos.Y() << ", " << pos.Z() 
-                            << "), momentum: (" << mom.X() << ", " << mom.Y() << ", " << mom.Z() << ")"
-                            << ", |p| = " << mom.Mag() << std::endl;
-
-                }     
-            }              
-        } catch (...) { chi2_plus = 1e9; }
-        delete rep;
-    }
-
-    // Store results
-    results_.back().genfitChi2_minus = chi2_minus;
-    results_.back().genfitChi2_plus = chi2_plus;
-
-    if (chi2_minus < chi2_plus) {
-        results_.back().genfitMomentum = p_minus;
-        results_.back().genfitChi2 = chi2_minus;
-        results_.back().genfitCharge = -1;
-        PlotHitsAndTrack(hits, fittedTrackPointsMinus, "GenfitTrack_" + std::to_string(hits.front().trackID));
-
-    } else {
-        results_.back().genfitMomentum = p_plus;
-        results_.back().genfitChi2 = chi2_plus;
-        results_.back().genfitCharge = +1;
-        PlotHitsAndTrack(hits, fittedTrackPointsPlus, "GenfitTrack_" + std::to_string(hits.front().trackID));
-    }
-}
-    */
 ///////////////////////////////////////////////////////////// 
 ///// CalculateSagittaMomentum method using hits.     ///////
 /////////////////////////////////////////////////////////////
@@ -1074,10 +1008,38 @@ double TrackAnalysis::CalculateSagittaMomentum(const std::vector<Hit>& hits) {
     double L = (nStations - 1) * iron_thickness;
 
     double sagitta = (p1.Y() - 0.5*(p0.Y() + p2.Y())) * 0.001; // mm to m
-    double B = std::abs(-1.8); // Tesla
+    //double B = std::abs(GetFieldX(p1.X(), p1.Y(), p1.Z())); // Tesla
+    double B = std::abs(MagnetFieldStrength); // Tesla
 
     // Formula: p = 0.3 * B * L^2 / (8 * sagitta)
-    return (std::abs(sagitta) > 1e-8) ? (0.3 * B * L * L / (8. * std::abs(sagitta))) : 0.0; // GeV/c
+    double p = (std::abs(sagitta) > 1e-8) ? (0.3 * B * L * L / (8. * std::abs(sagitta))) : 0.0;
+    if(verbose >= 2)
+        std::cout << "[SagittaMomentum] p = " << p 
+                  << " GeV/c, B = " << B 
+                  << " T, L = " << L 
+                  << " m, sagitta = " << sagitta 
+                  << " m" << std::endl;
+
+     // Determine charge
+    double local_bx = GetFieldBX(p1.Y()); // Get field with sign
+    int charge = 0;
+    if (std::abs(sagitta) > 1e-8) {
+        // For Bx field: positive sagitta with positive Bx means negative charge
+        charge = (sagitta * local_bx > 0) ? -1 : +1;
+    }
+    results_.back().sagittaCharge = charge;
+    // Calculate resolution (error propagation)
+    double sigma_sagitta = 0.05e-3; // 50 μm resolution in meters
+    double resolution = (std::abs(sagitta) > 1e-8) ? 
+        p * sigma_sagitta / std::abs(sagitta) : -1;
+    results_.back().sagittaResolution = resolution;
+    if(verbose >= 2)
+        std::cout << "[SagittaMomentum] Charge = " << charge 
+              << " local Bx = " << local_bx
+              << ", Resolution = " << resolution 
+              << " GeV/c" << std::endl;
+
+    return p; // (std::abs(sagitta) > 1e-8) ? (0.3 * B * L * L / (8. * std::abs(sagitta))) : 0.0; // GeV/c
 }
 ///////////////////////////////////////////////////////////// 
 ///// CalculateSagittaMomentum method using tracklet. ///////
@@ -1102,12 +1064,33 @@ double TrackAnalysis::CalculateSagittaMomentum(const std::vector<Tracklet>& hits
 
     // Effective L: total magnetized length
     double L = (nStations - 1) * iron_thickness;
-
-    double sagitta = (p1.X() - 0.5*(p0.X() + p2.X())) * 0.001; // mm to m
-    double B = 1.5; // Tesla
-
+    // i have to use Y coordinate for sagitta calculation
+    double sagitta = (p1.Y() - 0.5*(p0.Y() + p2.Y())) * 0.001; // mm to m
+    double B = std::abs(MagnetFieldStrength); // Use absolute value for momentum
+    //double B = std::abs(GetFieldX(p1.X(), p1.Y(), p1.Z())); // Tesla
+    // Calculate momentum
     // Formula: p = 0.3 * B * L^2 / (8 * sagitta)
-    return 0.3 * B * L * L / (8. * std::abs(sagitta)); // GeV/c
+    double p = (std::abs(sagitta) > 1e-8) ? (0.3 * B * L * L / (8. * std::abs(sagitta))) : 0.0;
+    //Determine charge using local signed field
+    double local_bx = GetFieldBX(p1.Y()); // Get field with sign
+    int charge = 0;
+    if (std::abs(sagitta) > 1e-8 && std::abs(local_bx) > 1e-6) {
+        charge = (sagitta * local_bx > 0) ? -1 : +1;
+    }
+    results_.back().sagittaCharge_trk = charge; 
+
+    //Calculate resolution (error propagation)
+    double sigma_sagitta = 0.05e-3; // 50 μm resolution in meters
+    double resolution = (std::abs(sagitta) > 1e-8) ? 
+        p * sigma_sagitta / std::abs(sagitta) : -1;
+    results_.back().sagittaResolution_trk = resolution;
+    if(verbose >= 2)
+        std::cout << "[SagittaMomentum] p = " << p 
+                  << " GeV/c, B = " << B 
+                  << " T, L = " << L 
+                  << " m, sagitta = " << sagitta 
+                  << " m" << std::endl;
+    return p;
 }
 ///////////////////////////////////////////////////////// 
 /////  FitStationTracklets method implementation. ///////
@@ -1301,13 +1284,14 @@ std::vector<TrackAnalysis::Tracklet> TrackAnalysis::FitStationTracklets(const st
 //before and after the iron block in the bending plane (here, y-z, since the field is in x).
 // Keep in mind that the magnetic field is changing sign in the iron block, 
 // check the positions of the tarcklets to define the magnetic field sign.
-std::pair<double, double>  TrackAnalysis::MomentumFromTrackletDeflection(
+//std::pair<double, double> 
+std::tuple<double, double, int> TrackAnalysis::MomentumFromTrackletDeflection(
     const std::vector<Tracklet>& tracklets,
     double bx_field,         // e.g. -1.5 T
     double iron_thickness_m,  // e.g. 0.10 (10 cm)
     bool use_3D_angle        // true = 3D angle, false = 2D bending plane
 ) {
-    if (tracklets.size() < 2) return {-999., -1.};
+    if (tracklets.size() < 2) return {-999., -1., 0};
 
     std::vector<double> momenta, theta_errs;
     std::vector<double> weights;
@@ -1370,7 +1354,6 @@ std::pair<double, double>  TrackAnalysis::MomentumFromTrackletDeflection(
         }
         if (dz_m < 1e-6) continue; // skip if no overlap
 
-
         // Local Bdl for this segment
         double Bdl = bx_local * dz_m; // Tesla*m
         if (verbose >= 4)
@@ -1418,11 +1401,10 @@ std::pair<double, double>  TrackAnalysis::MomentumFromTrackletDeflection(
                           << ", weight = " << w 
                           << std::endl;
         }
-
     }
 
     // Return average, median, 
-    if (momenta.empty()) return {-999., -1.};
+    if (momenta.empty()) return {-999., -1., 0};
     //double avg = sum_pw / sum_w;
     //double var = 0;
     //for (size_t i = 0; i < momenta.size(); ++i)
@@ -1434,10 +1416,28 @@ std::pair<double, double>  TrackAnalysis::MomentumFromTrackletDeflection(
     for (auto p : momenta) rms += (p - median) * (p - median);
     rms = std::sqrt(rms / momenta.size());
 
+    // Add charge determination from overall bending
+    int overall_charge = 0;
+    if (tracklets.size() >= 2) {
+        TVector3 dir_first = tracklets.front().dir;
+        TVector3 dir_last = tracklets.back().dir;
+        // Change in Y slope indicates charge for Bx field
+        double delta_ty = dir_last.Y()/dir_last.Z() - dir_first.Y()/dir_first.Z();
+        // Get local field with sign at middle of track
+        double z_mid = 0.5 * (tracklets.front().position.Z() + tracklets.back().position.Z());
+        double y_mid = 0.5 * (tracklets.front().position.Y() + tracklets.back().position.Y());
+        double x_mid = 0.5 * (tracklets.front().position.X() + tracklets.back().position.X());
+        //double local_bx = GetFieldX(x_mid, y_mid, z_mid);
+        double local_bx = GetFieldBX(y_mid); // Get field with sign
+
+        overall_charge = (delta_ty * local_bx > 0) ? -1 : +1;
+    }
     //std::cout << "[TRACKLET DEFLECTION] Weighted average momentum: " << avg << " GeV/c, RMS: " << rms << std::endl;
     std::cout << "[TRACKLET DEFLECTION] Median momentum: " << median << " GeV/c, RMS: " << rms << std::endl;
+    std::cout << "[TRACKLET DEFLECTION] Overall charge: " << overall_charge << std::endl;
     //return {avg, rms};
-    return {median, rms}; // Return median and RMS as a pair
+    //return {median, rms, overall_charge}; // Return median, RMS, and overall charge as a tuple
+    return std::make_tuple(median, rms, overall_charge); // Return median and overall charge
 }
 
 ///////////////////////////////////////////////////////// 
@@ -1496,7 +1496,7 @@ double TrackAnalysis::GlobalDirectionDeflectionMomentum(
 // fitting the (Y, Z) plane for Bx field.
 // The circle fit reconstructs the trajectory's curvature, which is directly related to the momentum via the above formula.
 TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Taubin(const std::vector<Tracklet>& tracklets, double bx_field) {
-    CircleFitResult result = {0, 0, 0, 0, 0, 0, false};
+    CircleFitResult result = {0, 0, 0, 0, 0, 0, 0, 0, false};
     if (tracklets.size() < 3) return result;
     // Fit a circle in the (Y, Z) plane using Taubin's method
     // Returns the circle center (yc, zc), radius R, RMS error sigma,
@@ -1578,7 +1578,29 @@ TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Taubin(const std::vect
     double p = 0.3 * std::abs(bx_field) * R; // GeV/c
     double p_err = 0.3 * std::abs(bx_field) * sigma;
     
-    result = {yc, zc, R, sigma, ndf, p, p_err, true};
+    // Determine charge from bending direction
+    int charge = 0;
+    if (tracklets.size() >= 3) {
+        // Use first, middle, last points to determine bending direction
+        TVector3 p1 = tracklets.front().position;
+        TVector3 p2 = tracklets[tracklets.size()/2].position;
+        TVector3 p3 = tracklets.back().position;
+
+        // Calculate sagitta in Y direction (for Bx field)
+        double sagitta_y = p2.Y() - 0.5 * (p1.Y() + p3.Y());
+        
+        // Get local field with sign at middle point
+        double local_bx = GetFieldBX(p2.Y()); // Get field with sign
+
+        if (std::abs(local_bx) > 1e-6) {
+            charge = (sagitta_y * local_bx > 0) ? -1 : +1;
+        }
+    }
+    
+    results_.back().taubinCharge_trk = charge;  // ADD this line  
+    results_.back().taubinResolution_trk = p_err;
+    
+    result = {yc, zc, R, sigma, ndf, p, p_err, charge, true};
     return result;
 }
 ////////////////////////////////////////////////////////////// 
@@ -1588,7 +1610,7 @@ TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Taubin(const std::vect
 // Returns the momentum in GeV/c
 // fitting the (Y, Z) plane for Bx field.
 TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Taubin(const std::vector<Hit>& hits, double bx_field) {
-    CircleFitResult result = {0, 0, 0, 0, 0, 0, false};
+    CircleFitResult result = {0, 0, 0, 0, 0, 0, 0, false};
     if (hits.size() < 3) return result;
     // Fit a circle in the (Y, Z) plane using Taubin's method
     // Returns the circle center (yc, zc), radius R, RMS error sigma,
@@ -1671,7 +1693,29 @@ TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Taubin(const std::vect
     double p = 0.3 * std::abs(bx_field) * R; // GeV/c
     double p_err = 0.3 * std::abs(bx_field) * sigma;
 
-    result = {yc, zc, R, sigma, ndf, p, p_err, true};
+    // Determine charge from bending direction
+    int charge = 0;
+    if (hits.size() >= 3) {
+        TVector3 p1 = hits.front().position;
+        TVector3 p2 = hits[hits.size()/2].position;
+        TVector3 p3 = hits.back().position;
+        
+        double sagitta_y = p2.Y() - 0.5 * (p1.Y() + p3.Y());
+        
+        // Get local field with sign at middle point
+        //double local_bx = GetFieldX(p2.X(), p2.Y(), p2.Z());
+        double local_bx = GetFieldBX(p2.Y()); // Get field with sign
+
+        if (std::abs(local_bx) > 1e-6) {
+            charge = (sagitta_y * local_bx > 0) ? -1 : +1;
+        }
+    }
+    //std::cout << "[CircleFitYZ_Taubin] yc=" << yc << ", zc=" << zc
+    //          << ", R=" << R << ", sigma=" << sigma
+    //          << ", ndf=" << ndf << ", p=" << p << ", p_err=" << p_err
+    //          << ", charge=" << charge << std::endl;
+
+    result = {yc, zc, R, sigma, ndf, p, p_err, charge, true};
     return result;
 }
 ///////////////////////////////////////////////////////// 
@@ -1681,7 +1725,7 @@ TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Taubin(const std::vect
 // Returns the momentum in GeV/c
 // fitting the (Y, Z) plane for Bx field.
 TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Kasa(const std::vector<Hit>& hits, double bx_field) {
-    CircleFitResult result = {0, 0, 0, 0, 0, 0, false};
+    CircleFitResult result = {0, 0, 0, 0, 0, 0, 0., false};
     if (hits.size() < 3) return result;
 
     // Kåsa method sums
@@ -1740,7 +1784,29 @@ TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Kasa(const std::vector
     // Calculate momentum and its error
     double p = 0.3 * std::abs(bx_field) * R; // GeV/c
     double p_err = 0.3 * std::abs(bx_field) * sigma;
-    result = {yc, zc, R, sigma, ndf, p, p_err, true};
+
+    // Determine charge from bending direction
+    int charge = 0;
+    if (hits.size() >= 3) {
+        TVector3 p1 = hits.front().position;
+        TVector3 p2 = hits[hits.size()/2].position;
+        TVector3 p3 = hits.back().position;
+        
+        double sagitta_y = p2.Y() - 0.5 * (p1.Y() + p3.Y());
+        
+        // Get local field with sign at middle point
+        //double local_bx = GetFieldX(p2.X(), p2.Y(), p2.Z());
+        double local_bx = GetFieldBX(p2.Y()); // Get field with sign
+        if (std::abs(local_bx) > 1e-6) {
+            charge = (sagitta_y * local_bx > 0) ? -1 : +1;
+        }
+    }
+    //std::cout << "[CircleFitYZ_Kasa] yc=" << yc << ", zc=" << zc
+    //          << ", R=" << R << ", sigma=" << sigma
+    //          << ", ndf=" << ndf << ", p=" << p << ", p_err=" << p_err
+    //          << ", charge=" << charge << std::endl;
+    result = {yc, zc, R, sigma, ndf, p, p_err, charge, true};
+
     return result;
 }
 ///////////////////////////////////////////////////////////// 
@@ -1750,7 +1816,7 @@ TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Kasa(const std::vector
 // Returns the momentum in GeV/c
 // fitting the (Y, Z) plane for Bx field.
 TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Kasa(const std::vector<Tracklet>& tracklets, double bx_field) {
-    CircleFitResult result = {0, 0, 0, 0, 0, 0, false};
+    CircleFitResult result = {0, 0, 0, 0, 0, 0, 0, 0, false};
     if (tracklets.size() < 3) return result;
 
     // Kåsa method sums
@@ -1809,102 +1875,31 @@ TrackAnalysis::CircleFitResult TrackAnalysis::CircleFitYZ_Kasa(const std::vector
     // Calculate momentum and its error
     double p = 0.3 * std::abs(bx_field) * R; // GeV/c
     double p_err = 0.3 * std::abs(bx_field) * sigma;
-    result = {yc, zc, R, sigma, ndf, p, p_err, true};
-    return result;
-}
-///////////////////////////////////////////////////////////// 
-/////            Helix  method implementation.         //////
-/////////////////////////////////////////////////////////////
-// Propagate a state (y, z, py, pz) by ds in a uniform Bx
-void PropagateHelix_Bx(double& y, double& z, double& py, double& pz,
-                       double q, double Bx, double ds, double mass)
-{
-    // units: B [T], p [MeV/c], ds [mm]
-    const double k = 0.3; // [GeV/c][T][m]
-    double p = std::sqrt(py*py + pz*pz);
-    double pt = p; // in y-z plane
-    double sign = (q > 0) ? 1 : -1;
 
-    // cyclotron frequency omega = q*B/p
-    // In y-z, radius = p / (0.3 * |B|) [GeV/c,T]
-    double R = p / (k * std::abs(Bx) * 1000.0); // mm (if p in MeV/c, B in T)
+    int charge = 0;
+    if (tracklets.size() >= 3) {
+        // Use first, middle, last points to determine bending direction
+        TVector3 p1 = tracklets.front().position;
+        TVector3 p2 = tracklets[tracklets.size()/2].position;
+        TVector3 p3 = tracklets.back().position;
+        
+        // Calculate sagitta in Y direction (for Bx field)
+        double sagitta_y = p2.Y() - 0.5 * (p1.Y() + p3.Y());
+        
+        // Get local field with sign at middle point
+        //double local_bx = GetFieldX(p2.X(), p2.Y(), p2.Z());
+        double local_bx = GetFieldBX(p2.Y()); // Get field with sign
 
-    // Angle advanced along arc:
-    double dphi = sign * (ds / R); // [radians], sign for charge
-
-    // Old direction
-    double theta = std::atan2(py, pz);
-
-    // New direction
-    double theta_new = theta + dphi;
-
-    // Update position
-    y += R * (std::sin(theta_new) - std::sin(theta));
-    z += R * (std::cos(theta) - std::cos(theta_new));
-
-    // Update momentum direction
-    py = p * std::sin(theta_new);
-    pz = p * std::cos(theta_new);
-}
-///////////////////////////////////////////////////////////// 
-///// Kick method implementation on Tracklet//////
-/////////////////////////////////////////////////////////////
-double TrackAnalysis::EstimateMomentumKickMethod(
-    const std::vector<Tracklet>& tracklets,        // Ordered by Z
-    const std::vector<std::pair<int,int>>& iron_regions, // {before_station, after_station} for each iron block
-    double B,                                      // Magnetic field in T
-    double iron_thickness                          // Each iron block thickness in m
-) {
-    // Accumulate total bending angle and field-length integral
-    double total_angle = 0;
-    double total_Bdl = 0;
-
-    for (const auto& region : iron_regions) {
-        int idx_before = region.first; // index of tracklet before iron
-        int idx_after  = region.second;// index after iron
-
-        if (idx_before < 0 || idx_after < 0 ||
-            idx_before >= tracklets.size() ||
-            idx_after >= tracklets.size())
-            continue; // skip invalid indices
-
-        TVector3 dir_before = tracklets[idx_before].dir;
-        TVector3 dir_after  = tracklets[idx_after].dir;
-
-        // Project both onto the bending plane (e.g., YZ for B along X)
-        TVector2 v_before(dir_before.Y(), dir_before.Z());
-        TVector2 v_after (dir_after.Y(), dir_after.Z());
-        v_before = v_before.Unit();
-        v_after  = v_after.Unit();
-
-        // Angle between them (in radians)
-        double cos_theta = v_before * v_after; // Dot product
-        cos_theta = std::max(-1.0, std::min(1.0, cos_theta));
-        double delta_theta = std::acos(cos_theta);
-
-        // For debugging:
-        if (verbose >= 3)
-            std::cout << "[Region] " << idx_before << "->" << idx_after
-                      << ": Δθ = " << delta_theta*180/M_PI << " deg" << std::endl;
-
-        total_angle += delta_theta;
-        total_Bdl   += B * iron_thickness;
+        if (std::abs(local_bx) > 1e-6) {
+            charge = (sagitta_y * local_bx > 0) ? -1 : +1;
+        }
     }
-
-    // Check for nonzero bend
-    if (total_angle < 1e-6) return -999.;
-
-    // Momentum formula
-    double p = 0.3 * total_Bdl / total_angle; // p in GeV/c
-    if(verbose >= 3)
-        std::cout << "[EstimateMomentumKickMethod] "
-                  << "B = " << B << " T, "
-                  << "Iron thickness = " << iron_thickness * 1000 << " mm, "
-                  << "Total angle = " << total_angle * 180 / M_PI << " deg, "
-                  << "Total B·L = " << total_Bdl << " T·m, "
-                  << "Estimated p = " << p << " GeV/c" << std::endl;
-    // Return estimated momentum
-    return p;
+    
+    //results_.back().kasaCharge_trk = charge;
+    //results_.back().kasaResolution_trk = p_err;
+    
+    result = {yc, zc, R, sigma, ndf, p, p_err, charge, true};
+    return result;
 }
 ///////////////////////////////////////////////////////// 
 ///// Linear Fit function                       /////////
@@ -2090,35 +2085,65 @@ void TrackAnalysis::WriteResults(const char* filename) {
     TFile outfile(filename, "RECREATE");
     TTree tree("results", "Reconstruction Results");
 
-    double truth, circleMomentum, circleMomentum2,kalman, genfit;
+    double truth, kalman, genfit;
     double sagittaMomentum, sagittaMomentum_trk;
     double kasaMomentum, kasaMomentumTrk;
     double taubinMomentum, taubinMomentumTrk;
+    double trackletMomentum, trackletMomentumGlobal;
+
+
     double kalmanMomentumErr, kalmanChi2;
     double genfitChi2, genfitMomentumErr, genfitCharge;
     int event_, trackid_, pdg_;
+
+    // ADD: New charge variables
+    int sagittaCharge, kasaCharge, taubinCharge, trackletCharge, trackletChargeGlobal, kalmanCharge;
+    int sagittaCharge_trk, kasaCharge_trk, taubinCharge_trk;
+
+    // ADD: New resolution variables
+    double sagittaRes, kasaRes, taubinRes, trackletRes, trackletResGlobal;
+    double sagittaRes_trk, kasaRes_trk, taubinRes_trk;
 
     // Branches for each result
     tree.Branch("event", &event_, "event/I");
     tree.Branch("trackid", &trackid_, "trackid/I");
     tree.Branch("pdg", &pdg_, "pdg/I");
     tree.Branch("truth", &truth, "truth/D");
-
+    // Sagitta momentum and charge branches
     tree.Branch("sagitta", &sagittaMomentum, "sagitta/D");
     tree.Branch("sagitta_trk", &sagittaMomentum_trk, "sagitta_trk/D");
+    tree.Branch("sagitta_charge", &sagittaCharge, "sagitta_charge/I");
+    tree.Branch("sagitta_charge_trk", &sagittaCharge_trk, "sagitta_charge_trk/I");
+    tree.Branch("sagitta_res", &sagittaRes, "sagitta_res/D");
+    tree.Branch("sagitta_res_trk", &sagittaRes_trk, "sagitta_res_trk/D");
 
+    // Kasa and Taubin momentum branches
     tree.Branch("kasa", &kasaMomentum, "kasa/D");
     tree.Branch("kasa_trk", &kasaMomentumTrk, "kasa_trk/D");
-    
+    tree.Branch("kasa_charge", &kasaCharge, "kasa_charge/I");
+    tree.Branch("kasa_charge_trk", &kasaCharge_trk, "kasa_charge_trk/I");
+    tree.Branch("kasa_res", &kasaRes, "kasa_res/D");
+    tree.Branch("kasa_res_trk", &kasaRes_trk, "kasa_res_trk/D");
+
+
     tree.Branch("taubin", &taubinMomentum, "taubin/D");
     tree.Branch("taubin_trk", &taubinMomentumTrk, "taubin_trk/D");
-    
-    tree.Branch("circle", &circleMomentum, "circle/D");
-    
-    tree.Branch("circle2", &circleMomentum2, "circle2/D");
+    tree.Branch("taubin_charge", &taubinCharge, "taubin_charge/I");
+    tree.Branch("taubin_charge_trk", &taubinCharge_trk, "taubin_charge_trk/I");
+    tree.Branch("taubin_res", &taubinRes, "taubin_res/D");
+    tree.Branch("taubin_res_trk", &taubinRes_trk, "taubin_res_trk/D");
+
+    tree.Branch("tracklet", &trackletMomentum, "tracklet/D");
+    tree.Branch("trackletGlobal", &trackletMomentumGlobal, "trackletGlobal/D");
+    tree.Branch("tracklet_charge", &trackletCharge, "tracklet_charge/I");
+    tree.Branch("tracklet_charge_global", &trackletChargeGlobal, "tracklet_charge_global/I");
+    tree.Branch("tracklet_res", &trackletRes, "tracklet_res/D");
+    tree.Branch("tracklet_res_global", &trackletResGlobal, "tracklet_res_global/D");
+
     tree.Branch("kalman", &kalman, "kalman/D");
     tree.Branch("kalman_err", &kalmanMomentumErr, "kalman_err/D");
     tree.Branch("kalman_chi2", &kalmanChi2, "kalman_chi2/D");
+    tree.Branch("kalman_charge", &kalmanCharge, "kalman_charge/I");
 
     // Branch for genfit momentum and chi2
     tree.Branch("genfit", &genfit, "genfit/D");
@@ -2135,20 +2160,38 @@ void TrackAnalysis::WriteResults(const char* filename) {
 
         sagittaMomentum = r.sagittaMomentum;
         sagittaMomentum_trk = r.sagittaMomentum_trk;
+        sagittaCharge = r.sagittaCharge;
+        sagittaCharge_trk = r.sagittaCharge_trk;
+        sagittaRes = r.sagittaResolution;
+        sagittaRes_trk = r.sagittaResolution_trk;
 
         kalman = r.kalmanMomentum;
         kalmanMomentumErr = r.kalmanMomentumErr;
         kalmanChi2 = r.kalmanChi2;
+        kalmanCharge = r.kalmanCharge;
 
-        circleMomentum = r.circleMomentum;
-        circleMomentum2 = r.circleMomentum2;
-        
+        trackletMomentum = r.trackletDeflectionMomentum;
+        trackletMomentumGlobal = r.trackletDeflectionMomentum_trk;
+        trackletCharge = r.trackletDeflectionCharge;
+        trackletChargeGlobal = r.trackletDeflectionCharge_trk;
+        trackletRes = r.trackletDeflectionMomentumErr;
+        trackletResGlobal = r.trackletDeflectionMomentumErr_trk;
+
         kasaMomentum = r.kasaMomentum;
         kasaMomentumTrk = r.kasaMomentum_trk;
+        kasaCharge = r.kasaCharge;
+        kasaCharge_trk = r.kasaCharge_trk;
+        kasaRes = r.kasaResolution;
+        kasaRes_trk = r.kasaResolution_trk;
         
         taubinMomentum = r.taubinMomentum;
         taubinMomentumTrk = r.taubinMomentum_trk;
-        
+        taubinCharge = r.taubinCharge;
+        taubinCharge_trk = r.taubinCharge_trk;
+        taubinRes = r.taubinResolution;
+        taubinRes_trk = r.taubinResolution_trk;
+
+
         genfit = r.genfitMomentum;
         genfitChi2 = r.genfitChi2;
         genfitCharge = r.genfitCharge;
@@ -2530,13 +2573,14 @@ static int colorByPDG(int pdg) {
     if (std::abs(pdg) == 11) return kRed;         // Electron/positron
     return kGray+2;                               // Other
 }
-
 static std::string pdgLabel(int pdg) {
     if (std::abs(pdg) == 13) return "#mu^{#pm} track";
     if (std::abs(pdg) == 11) return "e^{#pm} track";
     return "other";
 }
-
+/////////////////////////////////////////////////////////////
+/////   PlotGlobalTrackletFit method implementation. ///////
+/////////////////////////////////////////////////////////////
 void TrackAnalysis::PlotGlobalTrackletFit(const std::vector<Tracklet>& tracklets, const std::string& basename)
 {
     // Group by (trackID, pdg)
@@ -2623,7 +2667,7 @@ void TrackAnalysis::PlotGlobalTrackletFit(const std::vector<Tracklet>& tracklets
             const TVector3& p2 = avgs.back();
             double L = 1;//(p2.Z() - p0.Z()) * 0.001;  // mm -> m
             double sagitta = (pm.Y() - 0.5 * (p0.Y() + p2.Y())) * 0.001; // mm -> m
-            double B = 1.8; //1.5; // Tesla 
+            double B = std::abs(MagnetFieldStrength); //1.5; // Tesla
             momentum = (std::abs(sagitta) > 1e-8) ? (0.3 * B * L * L / (8. * std::abs(sagitta))) : 0.0;
         }
         // Print track info
@@ -2651,10 +2695,9 @@ void TrackAnalysis::PlotGlobalTrackletFit(const std::vector<Tracklet>& tracklets
     cYZ->Modified(); cYZ->Update();
     cYZ->SaveAs((basename+"_YZ_globaltrack.pdf").c_str());
 }
-
-
-
-
+///////////////////////////////////////////////////////// 
+///RunKalmanFilterTracklets method implementation /////// 
+/////////////////////////////////////////////////////////
 void TrackAnalysis::RunKalmanFilterTracklets(const std::vector<Tracklet>& hits, double seed_p) {
 
     if (hits.size() < 2) {
@@ -2713,7 +2756,6 @@ void TrackAnalysis::RunKalmanFilterTracklets(const std::vector<Tracklet>& hits, 
 
             double dz_m = std::abs(dz) * 1e-3; // mm to m
             total_Bdl += std::abs(bx) * dz_m;
-
             // Estimate momentum for propagation (use truth if available, or a fixed guess)
             //double p_est = hits[0].truthMomentum > 0 ? hits[0].truthMomentum : 10.0; // GeV/c
             //double p_est = 30.0; // might worh for momentum from 10 to 100GeV
@@ -2848,205 +2890,31 @@ void TrackAnalysis::RunKalmanFilterTracklets(const std::vector<Tracklet>& hits, 
         kalman_p_err = -1;
     }
 
+    int kalman_charge = 0;
+    if (found_entry && fabs(dtheta) > 1e-8) {
+        // Get local field with sign at middle of magnetic region
+        double z_mid = 0.5 * (hits.front().position.Z() + hits.back().position.Z());
+        double y_mid = 0.5 * (hits.front().position.Y() + hits.back().position.Y());
+        double x_mid = 0.5 * (hits.front().position.X() + hits.back().position.X());
+        //double local_bx = GetFieldX(x_mid, y_mid, z_mid);
+        double local_bx = GetFieldBX(y_mid); // Get field with sign
+
+
+        kalman_charge = (dtheta * local_bx > 0) ? -1 : +1;
+    }
+
+
     // Store results
     results_.back().kalmanMomentum = kalman_p;
     results_.back().kalmanMomentumErr = kalman_p_err;
     results_.back().kalmanChi2 = (nUpdates > 0) ? chi2/nUpdates : 9999;
+    results_.back().kalmanCharge = kalman_charge;
+
 
 }
-    /*
-    // Initialize covariance matrix
-    cov.Zero();
-    cov(0,0) = cov(1,1) = cov(2,2) = 1; // place 1 mm position uncertainity
-    cov(3,3) = cov(4,4) = 0.01;            // slopes uncertainity 1e-4 --> 0.01
-
-
-    double chi2 = 0;
-    int nUpdates = 0;
-
-    // estimate momentum from the change in slope after filtering
-    double ty_in = state(4,0);
-    double ty_out = ty_in;
-
-    // You can try initializing with a guess, but it's only for propagation!
-    //double p_est = std::max(hits[0].truthMomentum, 1.0); // avoid zero
-    double p_est = 10.0; // initial guess for momentum in GeV/c
-
-    double ty_entry = 0.0, ty_exit = 0.0;
-    bool found_entry = false;
-
-    // Loop over hits, starting from the second one
-    for (size_t i = 1; i < hits.size(); ++i) {
-        // Prediction steps
-        double dz = hits[i].position.Z() - state(2,0); // in mm
-        double dz_m = dz * 1e-3;                       // [m]
-       
-        // Query field at current position (in mm)
-        double bx = GetFieldX(state(0,0), state(1,0), state(2,0)); // Tesla
-       
-       
-       // For Bx only: dtheta in y-z plane (track bends in y)
-        double dtheta = (fabs(bx) > 1e-6) ? (0.3 * bx * dz_m / p_est) : 0.0;
-    
-        state(4,0) += dtheta;                               // update ty
-        state(0,0) += dz * state(3,0); // x += dz*tx
-        //state(1,0) += dz * state(4,0); // y += dz*ty
-        state(1,0) += dz * state(4,0) + 0.5 * dtheta * dz;  // y += dz*ty + ½dtheta*dz
-        state(2,0) = hits[i].position.Z();
-
-        std::cout << "[KALMAN] After update " << i << ": ty = " << state(4,0) << std::endl;
-
-
-        // Measurement matrix H (3x5)
-        TMatrixD H(nMeas, nStates);
-        H.Zero();
-        H(0,0) = H(1,1) = H(2,2) = 1.0; // maps states to measurement x, y, z
-        
-        TVectorD meas(nMeas);
-        meas(0) = hits[i].position.X();
-        meas(1) = hits[i].position.Y();
-        meas(2) = hits[i].position.Z();
-        
-        // Calculate H * state first
-        TVectorD Hstate(nMeas);
-        //Hstate = H * state;
-        for (int m = 0; m < nMeas; m++) {
-            Hstate(m) = 0;
-            for (int s = 0; s < nStates; s++) {
-                Hstate(m) += H(m,s) * state(s,0);
-            }
-        }
-        // Calculate residual
-        TVectorD residual = meas - Hstate; // residual = meas - H * state
-
-        // Measurement covariance (3x3)
-        TMatrixDSym R(nMeas);
-        R.Zero();
-        R(0,0) = R(1,1) = R(2,2) = 0.01; // 1 cm^2 resolution
-        // R is diagonal, so we can use TMatrixDSym for efficiency
-
-        // Innovation covariance S = H * cov * H.T() + R
-        TMatrixD H_T(TMatrixD::kTransposed, H);
-        TMatrixD temp = H * cov;
-        TMatrixD S = temp * H_T;
-        S += R; // Add measurement noise covariance
-
-        if (S.Determinant() == 0) {
-            std::cerr << "Error: S matrix is singular!" << std::endl;
-            continue;
-        }
-        // Invert S using TMatrixD
-        TMatrixD S_inv = S;
-        S_inv.Invert();
-
-         // Then compute residual properly
-        //TVectorD residual(nMeas);
-        //for (int j = 0; j < nMeas; ++j) {
-        //    residual(j) = meas(j) - Hstate(j);
-       // }
-
-        // Kalman gain  K = cov * H.T() * S_inv
-        TMatrixD K = cov * H_T; // (5x5)*(5x3) = (5x3)
-         K *= S_inv; // (5x3)*(3x3) = (5x3)
-        
-        // Update state
-        TVectorD state_update = K * residual;  // K (5x3) * residual (3x1) → (5x1) vector
-        for (int j = 0; j < nStates; ++j) {
-            state(j, 0) += state_update(j);    // Update state using vector indexing
-        }
-
-        // Update covariance - Joseph form for numerical stability
-        TMatrixD I(TMatrixD::kUnit, cov); // Identity matrix (5x5)
-        TMatrixD KH = K * H;              // (5x3)*(3x5) → (5x5)
-        TMatrixD IminusKH = I - KH;       // (5x5) - (5x5) → (5x5)
-
-        // First term: IminusKH * cov * IminusKH^T
-        TMatrixD tempCov = IminusKH * cov;
-        TMatrixD IminusKH_T(TMatrixD::kTransposed, IminusKH);
-        TMatrixD cov1 = tempCov * IminusKH_T;  // (5x5)*(5x5) → (5x5)
-        
-        // Second term: K * R * K^T
-        TMatrixD tempKR = K * R;               // (5x3)*(3x3) → (5x3)
-        TMatrixD K_T(TMatrixD::kTransposed, K); // (3x5)
-        TMatrixD cov2 = tempKR * K_T;          // (5x3)*(3x5) → (5x5)
-
-        // Final covariance update
-        for (int ii = 0; ii < nStates; ++ii) {
-            for (int jj = 0; jj < nStates; ++jj) {
-                cov(ii, jj) = cov1(ii, jj) + cov2(ii, jj);
-            }
-        }
-        int DEBUG = 0; // Set to 1 to enable debug output
-        // Debug output
-        if (DEBUG) {
-            std::cout << "[DEBUG] Kalman update for hit " << i << std::endl;
-            std::cout << "H: " << H.GetNrows() << "x" << H.GetNcols() << std::endl;
-            std::cout << "R: " << R.GetNrows() << "x" << R.GetNcols() << std::endl;
-            std::cout << "S: " << S.GetNrows() << "x" << S.GetNcols() << std::endl;
-            std::cout << "S_inv: " << S_inv.GetNrows() << "x" << S_inv.GetNcols() << std::endl;
-            //std::cout << "residual: " << residual.GetNrows() << std::endl;
-            std::cout << "K: " << K.GetNrows() << "x" << K.GetNcols() << std::endl;
-            std::cout << "KH:  " << KH.GetNrows() << "x" << KH.GetNcols() << std::endl;
-            std::cout << "cov: " << cov.GetNrows() << "x" << cov.GetNcols() << std::endl;
-        }
-
-        double x_mm = state(0,0); // you might want the filtered position here
-        double y_mm = state(1,0);
-        double z_mm = state(2,0);
-
-        double bx_f = GetFieldX(x_mm, y_mm, z_mm); // Use filtered position for consistency!
-
-        if (std::abs(bx_f) > 1e-6) {
-            if (!found_entry) {
-                ty_entry = state(4,0);
-                found_entry = true;
-            }
-            ty_exit = state(4,0); // update every time in B field; will be last at magnet exit
-        }
-
-        // Chi2 calculation (equivalent to residual^T * S_inv * residual)
-        double chi2Cont = 0.0;
-        for (int i = 0; i < nMeas; ++i) {
-            for (int j = 0; j < nMeas; ++j) {
-                chi2Cont += residual(i) * S_inv(i, j) * residual(j);
-            }
-        }
-        chi2 += chi2Cont;
-        nUpdates++;
-    }
-
-    //--- ESTIMATE KALMAN MOMENTUM FROM SLOPE CHANGE (ty) ---
-    // Integrate effective B*dl along the track
-
-    double eff_Bdl = 0.0;
-    for (size_t i = 1; i < hits.size(); ++i) {
-        double dz = (hits[i].position.Z() - hits[i-1].position.Z()) * 1e-3; // mm to m
-        double y = 0.5 * (hits[i].position.Y() + hits[i-1].position.Y());
-        double z = 0.5 * (hits[i].position.Z() + hits[i-1].position.Z());
-        double bx = GetFieldX(0, y, z);
-        eff_Bdl += std::abs(bx) * dz;
-    }
-    double dtheta = ty_out - ty_in; // total slope change in y-z
-    std::cout << "  [KALMAN] dtheta = " << dtheta << ", eff_Bdl = " << eff_Bdl << std::endl;
-
-    double dtheta2 = ty_exit - ty_entry; // total change in y-slope (radians)
-    std::cout << "  [KALMAN] dtheta2 = " << dtheta2 << ", eff_Bdl = " << eff_Bdl << std::endl;
-    double p_kalman = (std::abs(dtheta2) > 1e-8) ? (0.3 * eff_Bdl / std::abs(dtheta2)) : 0.0;
-    results_.back().kalmanMomentum = p_kalman;
-
-
-    // Use q=1, and take sign from the initial pdg
-    double kalman_p = (std::abs(dtheta) > 1e-8 && eff_Bdl > 1e-8)
-                      ? (0.3 * eff_Bdl / std::abs(dtheta))
-                      : 0.0;
-
-    //results_.back().kalmanMomentum = kalman_p; // Store the momentum estimate
-    //results_.back().kalmanMomentum = CalculateSagittaMomentum(hits);
-    results_.back().kalmanChi2 = (nUpdates > 0) ? chi2/nUpdates : 9999;
-*/
-
-
-
+///////////////////////////////////////////////////////////
+///////   RunGenfitTracklets method implementation /////// 
+///////////////////////////////////////////////////////////
 void TrackAnalysis::RunGenfitTracklets(const std::vector<Tracklet>& tracklets, double seed_p) {
     if (tracklets.size() < 3) {
         results_.back().genfitMomentum = 0;
@@ -3075,7 +2943,10 @@ void TrackAnalysis::RunGenfitTracklets(const std::vector<Tracklet>& tracklets, d
     }
 
     // Seed state: position from first, direction from first/last
-    TVector3 dir = (sorted.back().position - sorted.front().position).Unit();
+    //TVector3 dir = (sorted.back().position - sorted.front().position).Unit();
+    TVector3 dir(0,0,0);
+    for (const auto& t : sorted) dir += t.dir;
+    dir = dir.Unit();
 
     TVectorD stateSeed(6);
     stateSeed[0] = sorted.front().position.X() * 0.1; // mm to cm
@@ -3095,8 +2966,8 @@ void TrackAnalysis::RunGenfitTracklets(const std::vector<Tracklet>& tracklets, d
 
     TMatrixDSym covSeed(6);
     covSeed.Zero();
-    covSeed(0,0) = covSeed(1,1) = covSeed(2,2) = 0.1;  // 1 mm^2 in cm^2
-    covSeed(3,3) = covSeed(4,4) = covSeed(5,5) = 0.01; // (GeV/c)^2
+    covSeed(0,0) = covSeed(1,1) = covSeed(2,2) = 0.01;  // 1 mm^2 in cm^2
+    covSeed(3,3) = covSeed(4,4) = covSeed(5,5) = 1.0; // (GeV/c)^2
 
 
     auto fitCharge = [&](int pdg, double& momentum, double& chi2, double& p_err, bool& success) {
@@ -3112,9 +2983,10 @@ void TrackAnalysis::RunGenfitTracklets(const std::vector<Tracklet>& tracklets, d
                 pos(1) = t.position.Y() * 0.1;
                 pos(2) = t.position.Z() * 0.1;
                 TMatrixDSym cov(3); 
-                cov.UnitMatrix(); 
-                cov.Zero();
-                double sciFiSigma = 0.005; // cm , 50um resolutions considered
+                //cov.UnitMatrix(); 
+                //cov.Zero();
+                // CORRECTED: Larger uncertainty for tracklets (they're averaged positions)
+                double sciFiSigma = 0.01; // 100um resolutions considered for tracklets instead of 50um
                 cov(0,0) = sciFiSigma * sciFiSigma;
                 cov(1,1) = sciFiSigma * sciFiSigma;
                 cov(2,2) = sciFiSigma * sciFiSigma;
@@ -3122,18 +2994,95 @@ void TrackAnalysis::RunGenfitTracklets(const std::vector<Tracklet>& tracklets, d
                 track->insertMeasurement(new genfit::SpacepointMeasurement(pos, cov, t.station, -1, nullptr));
             }
             genfit::DAF daf;
+            // Set DAF parameters: more conservative for tracklets
             daf.setMaxIterations(20);
+            daf.setAnnealingScheme(0.8, 0.2, 5);
             daf.processTrack(track);
 
             const genfit::FitStatus* status = track->getFitStatus();
             if (status && status->isFitConverged()) {
                 genfit::MeasuredStateOnPlane mop = track->getFittedState();
                 TVector3 pvec = mop.getMom();
-                momentum = pvec.Mag();
+                //momentum = pvec.Mag();
+                // following added to check curvature
+                TVector3 pos = mop.getPos();
+    
+                // Get the track representation to access state parameters
+                genfit::AbsTrackRep* rep = track->getTrackRep(0);
+                
+                // Get the 5D state vector at the fitted plane
+                TVectorD state5D = mop.getState();
+                
+                // For RKTrackRep, the state vector is typically:
+                // state[0] = x/y (depending on plane orientation)
+                // state[1] = y/x 
+                // state[2] = tx = dx/dz (slope in x-z)
+                // state[3] = ty = dy/dz (slope in y-z)  
+                // state[4] = q/p (charge over momentum)
+                
+                double qOverP = state5D(4);  // q/p in (e*c)/(GeV)
+                double charge = (qOverP > 0) ? 1.0 : -1.0;
+                double momentum_from_state = std::abs(1.0 / qOverP);  // GeV/c
+                
+                // Calculate curvature in the bending plane (y-z for Bx field)
+                double tx = state5D(2);  // dx/dz
+                double ty = state5D(3);  // dy/dz
+                
+                // Momentum components
+                double px = pvec.X();
+                double py = pvec.Y(); 
+                double pz = pvec.Z();
+                double p_total = pvec.Mag();
+                
+                // Transverse momentum in bending plane (y-z for Bx field)
+                double pt_yz = std::sqrt(py*py + pz*pz);
+                
+                // Curvature = 1/R, where R is radius of curvature
+                // For a charged particle in magnetic field: R = p_t / (0.3 * |B| * |q|)
+                // So curvature = 0.3 * |B| * |q| / p_t
+                
+                // Get magnetic field at current position
+                TVector3 bField = magneticField_->get(pos);  // pos is in cm for GENFIT
+                double bx = bField.X();  // Tesla
+                
+                // Calculate curvature (1/R) in m^-1
+                double curvature = 0.0;
+                if (pt_yz > 0 && std::abs(bx) > 1e-6) {
+                    double R_meters = pt_yz / (0.3 * std::abs(bx));  // radius in meters
+                    curvature = 1.0 / R_meters;  // curvature in m^-1
+                }
+                
+                // Alternative: calculate curvature directly from q/p and field
+                double curvature_alt = 0.0;
+                if (std::abs(qOverP) > 1e-8 && std::abs(bx) > 1e-6) {
+                    curvature_alt = 0.3 * std::abs(bx) * std::abs(qOverP);  // m^-1
+                }
+                
+                // Debug output
+                std::cout << "[DEBUG] GENFIT results:" << std::endl;
+                std::cout << "  Position (cm): (" << pos.X() << ", " << pos.Y() << ", " << pos.Z() << ")" << std::endl;
+                std::cout << "  Momentum (GeV/c): (" << px << ", " << py << ", " << pz << ")" << std::endl;
+                std::cout << "  |p| = " << p_total << " GeV/c" << std::endl;
+                std::cout << "  |p| from q/p = " << momentum_from_state << " GeV/c" << std::endl;
+                std::cout << "  q/p = " << qOverP << " (e*c)/GeV" << std::endl;
+                std::cout << "  charge = " << charge << std::endl;
+                std::cout << "  slopes: tx = " << tx << ", ty = " << ty << std::endl;
+                std::cout << "  p_t(yz) = " << pt_yz << " GeV/c" << std::endl;
+                std::cout << "  B_x = " << bx << " T" << std::endl;
+                std::cout << "  Curvature (from p_t/B): " << curvature << " m^-1" << std::endl;
+                std::cout << "  Curvature (from q/p): " << curvature_alt << " m^-1" << std::endl;
+                if (curvature > 0) {
+                    std::cout << "  Radius of curvature: " << 1.0/curvature << " m" << std::endl;
+                    std::cout << "  Momentum from R: " << (0.3 * std::abs(bx) * (1.0/curvature)) << " GeV/c" << std::endl;
+                }
+                
+                momentum = p_total;
+                
+
                 chi2 = status->getChi2() / status->getNdf();
                 // error propagation for momentum
                 const TMatrixDSym& covMom = mop.get6DCov();
-                double px = pvec.X(), py = pvec.Y(), pz = pvec.Z();
+                //double px = pvec.X(), py = pvec.Y(), pz = pvec.Z();
                 double p = momentum;
                 if (p > 0 && covMom.GetNrows() >= 6) {
                     double dpx2 = covMom(3,3);
@@ -3182,90 +3131,3 @@ void TrackAnalysis::RunGenfitTracklets(const std::vector<Tracklet>& tracklets, d
     }
     
 }
-
-
-void TrackAnalysis::RunGenfitGlobalHits(const std::vector<Hit>& hits, double seed_p) {
-    if (hits.size() < 4) {
-        results_.back().genfitMomentum = 0;
-        results_.back().genfitChi2 = 9999;
-        results_.back().genfitCharge = 0;
-        return;
-    }
-
-    // Sort hits by Z
-    std::vector<Hit> sortedHits = hits;
-    std::sort(sortedHits.begin(), sortedHits.end(),
-        [](const Hit& a, const Hit& b) { return a.position.Z() < b.position.Z(); });
-
-    // Seed state: position from first hit, direction from first to last
-    TVector3 dir = (sortedHits.back().position - sortedHits.front().position).Unit();
-
-    TVectorD stateSeed(6);
-    stateSeed[0] = sortedHits.front().position.X() * 0.1; // mm to cm
-    stateSeed[1] = sortedHits.front().position.Y() * 0.1;
-    stateSeed[2] = sortedHits.front().position.Z() * 0.1;
-    stateSeed[3] = seed_p * dir.X();
-    stateSeed[4] = seed_p * dir.Y();
-    stateSeed[5] = seed_p * dir.Z();
-
-    TMatrixDSym covSeed(6);
-    covSeed.Zero();
-    covSeed(0,0) = covSeed(1,1) = covSeed(2,2) = 0.01;  // 0.1 mm^2 in cm^2
-    covSeed(3,3) = covSeed(4,4) = covSeed(5,5) = 1.0;   // (GeV/c)^2
-
-    auto fitCharge = [&](int pdg, double& momentum, double& chi2, bool& success) {
-        success = false;
-        momentum = 0;
-        chi2 = 1e9;
-        try {
-            genfit::Track* track = new genfit::Track(new genfit::RKTrackRep(pdg), stateSeed, covSeed);
-            for (const auto& hit : sortedHits) {
-                TVectorD pos(3);
-                pos(0) = hit.position.X() * 0.1;
-                pos(1) = hit.position.Y() * 0.1;
-                pos(2) = hit.position.Z() * 0.1;
-                TMatrixDSym cov(3); cov.UnitMatrix(); cov *= 0.000025; // (50um)^2 = 0.000025 cm^2
-                track->insertMeasurement(new genfit::SpacepointMeasurement(pos, cov, hit.stationID, hit.layerID, nullptr));
-            }
-            genfit::DAF daf;
-            daf.setMaxIterations(20);
-            daf.processTrack(track);
-
-            const genfit::FitStatus* status = track->getFitStatus();
-            if (status && status->isFitConverged()) {
-                genfit::MeasuredStateOnPlane mop = track->getFittedState();
-                momentum = mop.getMom().Mag();
-                chi2 = status->getChi2() / status->getNdf();
-                success = true;
-            }
-            delete track;
-        } catch (...) {}
-    };
-
-    double p_minus, chi2_minus, p_plus, chi2_plus;
-    bool ok_minus, ok_plus;
-    fitCharge(13, p_minus, chi2_minus, ok_minus);
-    fitCharge(-13, p_plus, chi2_plus, ok_plus);
-
-    if (ok_minus || ok_plus) {
-        if (ok_minus && (!ok_plus || chi2_minus < chi2_plus)) {
-            std::cout << "[GENFIT] Fit with -13 converged. Momentum: " << p_minus
-                      << " GeV/c, Chi2/NDF: " << chi2_minus << std::endl;
-            //results_.back().genfitMomentum = p_minus;
-            //results_.back().genfitChi2 = chi2_minus;
-            //results_.back().genfitCharge = -1;
-        } else {
-            std::cout << "[GENFIT] Fit with +13 converged. Momentum: " << p_plus
-                      << " GeV/c, Chi2/NDF: " << chi2_plus << std::endl;
-            //results_.back().genfitMomentum = p_plus;
-            //results_.back().genfitChi2 = chi2_plus;
-            //results_.back().genfitCharge = +1;
-        }
-    } else {
-        //results_.back().genfitMomentum = 0;
-        //results_.back().genfitChi2 = 9999;
-        //results_.back().genfitCharge = 0;
-    }
-}
-
-

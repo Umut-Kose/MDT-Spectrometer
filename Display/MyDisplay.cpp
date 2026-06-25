@@ -1,6 +1,22 @@
- #include "MyDisplay.h"
+ /*
+ * MyDisplay.cpp - Event Display for Muon Spectrometer Simulation
+ * 
+ * Detector Configuration:
+ * - 4 Tracking Stations (each with 4 layers of MDTs - Muon Drift Tubes)
+ * - 3 Magnet Iron pieces (40 cm thick each)
+ * - Total: 16 MDT layers + 3 magnets
+ * 
+ * Version: MDT configuration (updated from SciFi detectors)
+ * Backup of SciFi version available in: backup_scifi_version/
+ */
+
+#include "MyDisplay.h"
 #include <TSystem.h>
 #include <iostream>
+#include "TVector3.h"
+#include <map>
+#include <vector>
+#include <cmath>
 
 MyDisplay::MyDisplay() : 
   fEventTree(nullptr),
@@ -189,12 +205,13 @@ void MyDisplay::LoadGeometry(const std::string& gdmlFile) {
     eveShape->SetTransMatrix(transform);
     
     // Color-coding based on volume name
+    // New detector configuration: 4 layers of MDTs per station, 4 stations total, 3 magnet iron pieces (40cm thick)
     TString volName = vol->GetName();
     
-    if (volName.Contains("SciFi"))
-      eveShape->SetMainColor(kGreen + 1);
-    else if (volName.Contains("Magnet"))
-      eveShape->SetMainColor(kGray + 1);
+    if (volName.Contains("MDT") || volName.Contains("mdt"))
+      eveShape->SetMainColor(kGreen + 1);  // MDT layers in green
+    else if (volName.Contains("Magnet") || volName.Contains("magnet"))
+      eveShape->SetMainColor(kGray + 1);   // Magnet iron in gray
     else if (volName.Contains("AluStrip"))
       eveShape->SetMainColor(kOrange + 7);
     else
@@ -371,12 +388,21 @@ void MyDisplay::DisplayEventHits(int targetEventID)
   std::vector<double>* z = nullptr;
   std::vector<int>* pdg = nullptr;
   Int_t eventID = -1;
+  std::vector<int>* trackID = nullptr;
+  std::vector<double>* px = nullptr;
+  std::vector<double>* py = nullptr;
+  std::vector<double>* pz = nullptr;
   
-  fEventTree->SetBranchAddress("x", &x);
-  fEventTree->SetBranchAddress("y", &y);
-  fEventTree->SetBranchAddress("z", &z);
+  // MDT simulation uses trueX, trueY, trueZ for actual hit positions
+  fEventTree->SetBranchAddress("trueX", &x);
+  fEventTree->SetBranchAddress("trueY", &y);
+  fEventTree->SetBranchAddress("trueZ", &z);
   fEventTree->SetBranchAddress("pdg", &pdg);
   fEventTree->SetBranchAddress("eventID", &eventID);
+  fEventTree->SetBranchAddress("trackID", &trackID);
+  fEventTree->SetBranchAddress("px", &px);
+  fEventTree->SetBranchAddress("py", &py);
+  fEventTree->SetBranchAddress("pz", &pz);
 
   //TEveBoxSet* hits = new TEveBoxSet("Hits");
   //hits->Reset(TEveBoxSet::kBT_AABox, true, 64);
@@ -385,29 +411,76 @@ void MyDisplay::DisplayEventHits(int targetEventID)
   //hits->SetPickable(kTRUE);
 
   TGeoMedium *air = gGeoManager->GetMedium("AIR");
-  TGeoShape *box = new TGeoBBox("box", 0.2/2.0,0.2/2.0,0.2/2.0);
+  // Larger hit markers for better visibility (1 cm cube)
+  TGeoShape *box = new TGeoBBox("box", 1/2.0, 1/2.0, 1/2.0);
 
   TEveElementList* hitList = new TEveElementList("Hits");
+  
+  // Store momentum info per track (trackID -> momentum vector)
+  std::map<int, TVector3> trackMomentum;
+  std::map<int, int> trackPDG;
 
   for (Long64_t i = 0; i < fEventTree->GetEntries(); ++i)
     {
       fEventTree->GetEntry(i);
       if (eventID != targetEventID) continue;
       
+      std::cout << "\n=== Event " << targetEventID << " Hits ===" << std::endl;
+      
       for (size_t j = 0; j < x->size(); ++j)
-	{
-	  std::cout << x->at(j) << " " << y->at(j) << " " <<  z->at(j) << std::endl;
-	  TGeoTranslation *trans = new TGeoTranslation(x->at(j) / 10.0, y->at(j) / 10.0, z->at(j) / 10.0);
-	  TGeoVolume* hitVolume = new TGeoVolume("HitVolume", box, air);
-	  hitVolume->SetLineColor(kRed); 
-	  TEveGeoShape* eveShape = new TEveGeoShape(hitVolume->GetName());
-	  eveShape->SetShape(hitVolume->GetShape());
-	  eveShape->SetMainColor(hitVolume->GetLineColor());
-	  eveShape->SetTransMatrix(*trans);
-	  hitList->AddElement(eveShape);
-	}
+      {
+        int trkid = trackID->at(j);
+        int pdgCode = pdg->at(j);
+        double p_x = px->at(j);
+        double p_y = py->at(j);
+        double p_z = pz->at(j);
+        double p_tot = std::sqrt(p_x*p_x + p_y*p_y + p_z*p_z);
+        
+        // Store momentum for each track (first hit)
+        if (trackMomentum.find(trkid) == trackMomentum.end()) {
+          trackMomentum[trkid] = TVector3(p_x, p_y, p_z);
+          trackPDG[trkid] = pdgCode;
+          
+          // Print momentum info for muons (PDG = ±13)
+          if (std::abs(pdgCode) == 13) {
+            std::cout << "Track " << trkid << " (Muon, PDG=" << pdgCode << "):" << std::endl;
+            std::cout << "  Momentum: Ptot = " << p_tot << " MeV/c" << std::endl;
+            std::cout << "            Px = " << p_x << " MeV/c" << std::endl;
+            std::cout << "            Py = " << p_y << " MeV/c" << std::endl;
+            std::cout << "            Pz = " << p_z << " MeV/c" << std::endl;
+          }
+        }
+        
+        // Create hit marker
+        TGeoTranslation *trans = new TGeoTranslation(x->at(j) / 10.0, y->at(j) / 10.0, z->at(j) / 10.0);
+        TGeoVolume* hitVolume = new TGeoVolume("HitVolume", box, air);
+        hitVolume->SetLineColor(kRed); 
+        TEveGeoShape* eveShape = new TEveGeoShape(hitVolume->GetName());
+        eveShape->SetShape(hitVolume->GetShape());
+        eveShape->SetMainColor(hitVolume->GetLineColor());
+        eveShape->SetTransMatrix(*trans);
+        hitList->AddElement(eveShape);
+      }
     }
   
+  // Display momentum vectors for muon tracks
+  for (const auto& [trkid, pVec] : trackMomentum) {
+    if (std::abs(trackPDG[trkid]) == 13) {
+      // Create momentum vector arrow (scaled for visibility)
+      TEveLine* momArrow = new TEveLine(2);
+      momArrow->SetLineColor(kBlue);
+      momArrow->SetLineWidth(3);
+      momArrow->SetLineStyle(2); // Dashed line
+      
+      // Scale momentum vector for display (adjust scale factor as needed)
+      double scale = 0.01; // 1 cm per 100 MeV/c
+      momArrow->SetPoint(0, 0, 0, 0);
+      momArrow->SetPoint(1, pVec.X()*scale, pVec.Y()*scale, pVec.Z()*scale);
+      momArrow->SetTitle(Form("Track %d: P=%.1f MeV/c", trkid, pVec.Mag()));
+      hitList->AddElement(momArrow);
+    }
+  }
+
   fHitElements->AddElement(hitList);
   //gEve->AddElement(fHitElements);
   gEve->Redraw3D(kTRUE);

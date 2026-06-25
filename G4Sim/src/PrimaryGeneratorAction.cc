@@ -13,13 +13,17 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
   // Define energy steps from 10 GeV to 100 GeV
   for (G4double e = 10 * GeV; e <= 100 * GeV; e += 10 * GeV)
     fEnergies.push_back(e);
-  
+  // From 100 GeV to 1 TeV (200 GeV step)
+  for (G4double e = 100 * GeV + 100 * GeV; e <= 1 * TeV; e += 200 * GeV)
+    fEnergies.push_back(e);
+//
+
   // Set particle type to mu-
   G4ParticleDefinition* muon = G4ParticleTable::GetParticleTable()->FindParticle("mu-");
   fParticleGun->SetParticleDefinition(muon);
   
   // Start position at origin
-  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -2500. * mm));
+  fParticleGun->SetParticlePosition(G4ThreeVector(0., 0., -1500. * mm));
   //fParticleGun->SetParticlePosition(G4ThreeVector(0, 0, -worldZ/2 - 10*mm));
 
   // Direction along +Z
