@@ -1,4 +1,4 @@
-# Studying magnet options for FASERCAL
+# Studying MDT magnet options for FASERCAL
 
 
 Code to simulate and analyze muons in Magnet
@@ -6,27 +6,25 @@ Code to simulate and analyze muons in Magnet
 
 # G4Sim
 
-Consideration:
-
-Each module consists of:
-
-1 Magnet Plane:
-
-Made of ARMCO steel, 100×100 cm², 3 cm thick
-
-Two horizontal slits (50 cm long anf 1cm wide, 25 cm away from Top/Bottom and centered)
-
-Magnetized with ±1.5 T uniform field (top: +1.5 T, center: –1.5 T, bottom: +1.5 T)
-
-Aluminum coil strip (5 cm wide and 4 mm thick)
-
-1 SciFi Tracker Plane (4 layers/plane) immediately after the magnet
-
-Position resolution: typically 50 um
-
-30 cm air gap between modules
-
-There are 5 such modules in total.
+# ATLAS Monitored Drift Chamber
+* 3-Layer honeycomb MDT chamber
+* 34 tubes per layer
+* 102 tubes per station
+* Y pitch within the layer 30mm (tubes touching)
+* Z pitch between layers 25.98 mm
+# All tubes in all stations oriented along the X axis
+* Tube length= 860 mm
+* Tube diameter = 30 mm 
+    (0.4 mm thick Al pipe, inner radius 14.6 mm)
+* Aluminum endplates = 10 mm
+* Tracking station thickness 102 mm
+* Spatial resolution 80 um
+# Magnet same as Baby-Mind 
+* muons bend in YZ plane
+* Each magnet 400 mm thick iron
+* Magnetic field only on the iron
+* Bx = -1.5 T for |y| < 250 mm; +1.5 T for 250<|y| < 500 mm
+* B = 0 outside magnet volume
 
 cd build
 cmake -DGeant4_DIR=$G4LIBDIR ..
