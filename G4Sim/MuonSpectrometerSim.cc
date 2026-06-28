@@ -19,6 +19,7 @@ int main(int argc, char** argv) {
     auto* runManager = G4RunManagerFactory::CreateRunManager(G4RunManagerType::Serial);
     runManager->SetUserInitialization(new DetectorConstruction());
     //runManager->SetUserInitialization(new QBBC);
+    // Geant4 natively loads its high-energy standard electromagnetic package when QGSP_BERT initialization is used.
     runManager->SetUserInitialization(new QGSP_BERT());
 
     //runManager->SetUserAction(new PrimaryGeneratorAction());
